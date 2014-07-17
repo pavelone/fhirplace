@@ -4,8 +4,8 @@
             [ring.middleware.file :as rmf]
             [fhirplace.app]
             [ring.adapter.jetty :as jetty]
-            [environ.core :as env]))
-
+            [environ.core :as env]
+            [clojure.string :as cs]))
 
 (def GET :GET)
 (def POST :POST)
@@ -86,24 +86,51 @@
 (defn dispatch [{handler :handler route :route :as req}]
   (let [mws  (map resolve-filter (collect :mw route))
         req  (update-in req [:params] merge (:params route))]
+    (println "PARAMS: " (:params route))
     (println "\n\nDispatching " (:request-method req) " " (:uri req) " to " (pr-str handler))
     (println "Middle-wares: " (pr-str mws))
     ((build-stack handler mws) req)))
 
 (defn strip-context  [h]
-  (fn  [{context :context uri :uri :as req}]
+  (fn [{context :context uri :uri :as req}]
     (println req)
     (if-not context
       (h req)
       (let [new-uri  (.substring uri  (.length context))]
         (h (assoc req :uri new-uri))))))
 
+(defn- param-to-sort
+  [param]
+  (let [[key value] (cs/split param #"=")]
+    (case key
+      "_sort" (str value ":asc")
+      "_sort:asc" (str value ":asc")
+      "_sort:desc" (str value ":desc")
+      nil)))
+
+(defn- query-to-sort
+  [query]
+  (let [params (cs/split query #"&")
+        sort (mapv param-to-sort params)]
+    (filterv #(not (nil? %)) sort)))
+
+(query-to-sort "_sort:asc=_id&_sort:asc=_profile&_format=application%2Fjson")
+
+(defn- wrap-sort
+  [h]
+  (fn [{query :query-string :as req}]
+    (let [sort (query-to-sort query)
+          new-req (if (empty? sort) req (assoc req :_sort sort))]
+      (println "[wrap-sort] QUERY-STRING: " query)
+      (println "[wrap-sort] SORT: " sort)
+      (h new-req))))
 
 (def app (-> dispatch
              (resolve-handler)
              (resolve-route)
              (fhirplace.app/<-format)
              (fhirplace.app/<-cors)
+             (wrap-sort)
              (ch/site)
              (rmf/wrap-file "resources/public")
              (strip-context)))

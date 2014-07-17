@@ -223,8 +223,15 @@
 (defn =profile [{{tp :type} :params :as req}]
   {:body (f/profile-resource tp)})
 
-(defn =search [{{rt :type :as param} :params}]
-  {:body (db/-search rt (dissoc param :type))})
+(defn =search [{{rt :type :as param} :params sort :_sort}]
+  (println "PARAM: " param)
+  (println "SORT: " sort)
+  (let [query (->
+               (if sort
+                 (assoc param :_sort sort)
+                 param)
+               (dissoc :type))]
+   {:body (db/-search rt query)}))
 
 (defn =tags [req]
   {:body (db/-tags)})
