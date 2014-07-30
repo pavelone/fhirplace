@@ -310,15 +310,23 @@
             (status 200)))
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
 
+(defn- validate-resource-type
+  [rt res]
+  (let [json (f/serialize :json res)
+        resource-type (str (.getResourceType res))]
+    (if (= rt resource-type)
+      {:status 200}
+      (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
+
 (defn =validate-create
-  [{res :data tags :tags}]
+  [{{rt :type} :params res :data tags :tags}]
   #_{:pre [(not (nil? res))]}
-  {:status 200})
+  (validate-resource-type rt res))
 
 (defn =validate-update
-  [{res :data}]
+  [{{rt :type} :params res :data}]
   #_{:pre [(not (nil? res))]}
-  {:status 200})
+  (validate-resource-type rt res))
 
 (defn =delete
   [{{rt :type id :id} :params body :body}]
