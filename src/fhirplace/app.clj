@@ -290,10 +290,25 @@
   (println "=create " (keys req))
   (let [json (f/serialize :json res)
         jtags (json/write-str tags)
-        item (db/-create (str (.getResourceType res)) json jtags)]
-    (-> (resource-resp item)
-        (status 201)
-        (header "Category" (fc/encode-tags tags)))))
+        resource-type (str (.getResourceType res))]
+    (if (= rt resource-type)
+      (let [item (db/-create resource-type json jtags)]
+        (-> (resource-resp item)
+           (status 201)
+           (header "Category" (fc/encode-tags tags))))
+      (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
+
+(defn =update
+  [{{rt :type id :id} :params res :data tags :tags}]
+  {:pre [(not (nil? res))]}
+  (let [json (f/serialize :json res)
+        jtags (json/write-str tags)
+        resource-type (str (.getResourceType res))]
+    (if (= rt resource-type)
+      (let [item (db/-update rt id json jtags)]
+        (-> (resource-resp item)
+            (status 200)))
+      (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
 
 (defn =validate-create
   [{res :data tags :tags}]
@@ -304,14 +319,6 @@
   [{res :data}]
   #_{:pre [(not (nil? res))]}
   {:status 200})
-
-(defn =update
-  [{{rt :type id :id} :params res :data tags :tags}]
-  {:pre [(not (nil? res))]}
-  (let [json (f/serialize :json res)
-        item (db/-update rt id json (json/write-str tags))]
-    (-> (resource-resp item)
-        (status 200))))
 
 (defn =delete
   [{{rt :type id :id} :params body :body}]
