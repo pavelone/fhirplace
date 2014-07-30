@@ -223,6 +223,9 @@
 (defn =profile [{{tp :type} :params :as req}]
   {:body (f/profile-resource tp)})
 
+(defn =search-all [req]
+  (throw (Exception. "search-all not implemented")))
+
 (defn =search [{{rt :type :as param} :params :as req}]
   (println "QUERY-STRING: " (:query-string req))
   (let [query (or (:query-string req) "")]

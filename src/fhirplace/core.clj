@@ -18,10 +18,10 @@
     {:fn hnd :mw mws}))
 
 (def routes
-  {GET (h '=info)
+  {GET (h '<-outcome-on-exception '=search-all)
    "metadata" {GET (h '=metadata)}
    "Profile" { [:type] {GET (h '=profile)}}
-   "_tags" {GET (h '=tags)}
+   "_tags" {GET (h '<-outcome-on-exception '=tags)}
    [:type] {:mw ['<-outcome-on-exception '->type-supported!]
             POST       (h '->parse-tags! '->parse-body! '->valid-input!  '=create)
             "_validate" {:mw ['->parse-body! '->valid-input!]
