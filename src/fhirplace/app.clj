@@ -231,7 +231,7 @@
   (let [query (or (:query-string req) "")]
    {:body (db/-search rt query)}))
 
-(defn =tags [req]
+(defn =tags-all [_]
   {:body (db/-tags)})
 
 (defn =resource-type-tags [{{rt :type} :params}]
@@ -270,6 +270,12 @@
 
 (defn =history [{{rt :type id :id} :params}]
   {:body (db/-history rt id)})
+
+(defn =history-type [{{rt :type} :params}]
+  {:body (db/-history rt)})
+
+(defn =history-all [_]
+  {:body (db/-history)})
 
 (defn resource-resp [res]
   (let [bundle (json/read-str res :key-fn keyword)

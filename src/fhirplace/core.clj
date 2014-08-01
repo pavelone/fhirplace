@@ -21,7 +21,8 @@
   {GET (h '<-outcome-on-exception '=search-all)
    "metadata" {GET (h '=metadata)}
    "Profile" { [:type] {GET (h '=profile)}}
-   "_tags" {GET (h '<-outcome-on-exception '=tags)}
+   "_tags" {GET (h '<-outcome-on-exception '=tags-all)}
+   "_history" {GET (h '<-outcome-on-exception '=history-all)}
    [:type] {:mw ['<-outcome-on-exception '->type-supported!]
             POST       (h '->parse-tags! '->parse-body! '->valid-input!  '=create)
             "_validate" {:mw ['->parse-body! '->valid-input!]

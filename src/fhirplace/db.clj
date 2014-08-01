@@ -139,9 +139,16 @@
   (f/parse
     (call* :fhir_search (cfg-str) tp (json/write-str q))))
 
-(defn -history [tp id]
-  (f/parse
-    (call* :fhir_history (cfg-str) tp id "{}")))
+(defn -history
+  ([]
+     (f/parse
+      (call* :fhir_history (cfg-str) "{}")))
+  ([tp]
+     (f/parse
+      (call* :fhir_history (cfg-str) tp "{}")))
+  ([tp id]
+     (f/parse
+      (call* :fhir_history (cfg-str) tp id "{}"))))
 
 ;; TODO: bug report
 (defn -tags
