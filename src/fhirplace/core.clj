@@ -31,6 +31,7 @@
             GET (h '=search)
             "_search"   {GET (h '=search)}
             "_tags"     {GET (h '=resource-type-tags)}
+            "_history" {GET (h '=history-type)}
             [:id] {:mw ['->resource-exists! '->check-deleted!]
                    "_tags"   {GET (h '=resource-tags)
                               POST (h '->parse-tags! '->check-tags '=affix-resource-tags)
