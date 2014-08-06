@@ -60,9 +60,3 @@
   (println "TAGS--" tags)
   (cs/join ", " (map (fn [t]
                        (str (:term t) "; scheme=\"" (:scheme t) "\"; label=\"" (:label t) "\"")) tags)))
-
-; (defn safe-parse [x]
-;   (try
-;     [:ok (parse x)]
-;     (catch Exception e
-;       [:error (str "Tags could not be parsed: \n" x "\n" e)])))

@@ -135,9 +135,8 @@
     not))
 
 (defn -search [tp q]
-  (println "SEARCH:" (json/write-str q))
   (f/parse
-    (call* :fhir_search (cfg-str) tp (json/write-str q))))
+    (call* :fhir_search (cfg-str) tp q)))
 
 (defn -history
   ([]
