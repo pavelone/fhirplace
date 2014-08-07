@@ -19,6 +19,7 @@
 
 (def routes
   {GET (h '<-outcome-on-exception '=search-all)
+   POST (h '<-outcome-on-exception '=transaction)
    "metadata" {GET (h '=metadata)}
    "Profile" { [:type] {GET (h '=profile)}}
    "_tags" {GET (h '<-outcome-on-exception '=tags-all)}

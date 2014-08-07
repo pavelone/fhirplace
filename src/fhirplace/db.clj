@@ -138,6 +138,10 @@
   (f/parse
     (call* :fhir_search (cfg-str) tp q)))
 
+(defn -transaction [bundle]
+  (f/parse
+    (call* :fhir_transaction (cfg-str) bundle)))
+
 (defn -history
   ([]
      (f/parse

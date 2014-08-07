@@ -350,3 +350,9 @@
     (println res)
     (-> (resource-resp res)
         (status 200))))
+
+(defn =transaction
+  [{bd :body :as req}]
+  (let [json (slurp bd)]
+    (println "=transacton bundle: " json)
+    {:body (db/-transaction json)}))
