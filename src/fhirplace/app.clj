@@ -305,13 +305,15 @@
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
 
 (defn =update
-  [{{rt :type id :id} :params res :data tags :tags}]
+  [{{rt :type id :id} :params res :data tags :tags :as req}]
   {:pre [(not (nil? res))]}
   (let [json (f/serialize :json res)
         jtags (json/write-str tags)
         resource-type (str (.getResourceType res))]
     (if (= rt resource-type)
-      (let [item (db/-update rt id json jtags)]
+      (let [cl (get-in req [:headers "content-location"])
+            vid (last (cs/split cl #"/"))
+            item (db/-update rt id vid json jtags)]
         (-> (resource-resp item)
             (status 200)))
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))

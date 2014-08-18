@@ -93,8 +93,8 @@
 (defn -create [tp json tags]
   (call* :fhir_create (cfg-str) tp json tags))
 
-(defn -update [tp id json tags]
-  (call* :fhir_update (cfg-str) tp id id json tags))
+(defn -update [tp id vid json tags]
+  (call* :fhir_update (cfg-str) tp id vid json tags))
 
 (defn -delete [tp id]
   (call* :fhir_delete (cfg-str) tp id))
