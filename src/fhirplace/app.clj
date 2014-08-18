@@ -355,6 +355,6 @@
 
 (defn =transaction
   [{bd :body :as req}]
-  (let [json (slurp bd)]
-    (println "=transacton bundle: " json)
+  (let [bundle (f/parse (slurp bd))
+        json (f/serialize :json bundle)]
     {:body (db/-transaction json)}))
