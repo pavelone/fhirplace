@@ -152,6 +152,10 @@
   (f/parse
     (call* :fhir_conformance (cfg-str))))
 
+(defn -profile [tp]
+  (f/parse
+    (call* :fhir_profile (cfg-str) tp)))
+
 (defn -search [tp q]
   (f/parse
     (call* :fhir_search (cfg-str) tp q)))
@@ -185,6 +189,3 @@
 (defn -remove-tags
   ([tp id] (call* :fhir_remove_tags tp id))
   ([tp id vid] (call* :fhir_remove_tags tp id vid)))
-
-#_(-history "Patient" (uuid))
-#_(-history "Encounter" (uuid))

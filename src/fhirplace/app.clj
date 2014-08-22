@@ -221,7 +221,7 @@
   {:body (db/-conformance)})
 
 (defn =profile [{{tp :type} :params :as req}]
-  {:body (f/profile-resource tp)})
+  {:body (db/-profile tp)})
 
 (defn =search-all [req]
   (throw (Exception. "search-all not implemented")))
