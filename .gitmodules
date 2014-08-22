@@ -4,3 +4,6 @@
 [submodule "fhirbase"]
 	path = fhirbase
 	url = git@github.com:fhirbase/fhirbase.git
+[submodule "fhirface"]
+	path = fhirface
+	url = git@github.com:fhirbase/fhirface.git
