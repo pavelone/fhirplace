@@ -218,7 +218,7 @@
   #"[0-f]{8}-([0-f]{4}-){3}[0-f]{12}")
 
 (defn =metadata [req]
-  {:body (f/conformance)})
+  {:body (db/-conformance)})
 
 (defn =profile [{{tp :type} :params :as req}]
   {:body (f/profile-resource tp)})
