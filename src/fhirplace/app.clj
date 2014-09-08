@@ -40,7 +40,8 @@
             "application/xml" :xml
             "application/atom+xml" :xml
             "application/xml+fhir" :xml} fmt)
-      (request-format req)))
+      (request-format req)
+      :json))
 
 (defn- content-type-format
   [fmt bd]
