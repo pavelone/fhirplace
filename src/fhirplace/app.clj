@@ -11,6 +11,7 @@
             [fhirplace.db :as db]
             [ring.adapter.jetty :as jetty]
             [clojure.data.json :as json]
+            [hiccup.page :refer (html5 include-css include-js)]
             [environ.core :as env]))
 
 (import 'org.hl7.fhir.instance.model.Resource)
@@ -39,33 +40,62 @@
             "application/xml" :xml
             "application/atom+xml" :xml
             "application/xml+fhir" :xml} fmt)
-      (request-format req)
-      :json))
+      (request-format req)))
 
 (defn- content-type-format
   [fmt bd]
   (let [mime (if (and (instance? AtomFeed bd) (= :xml fmt))
                "application/atom+xml"
                (get {:json "application/json+fhir"
-                    :xml "application/xml+fhir"} fmt))]
-       (str mime "; charset=UTF-8")))
+                     :xml "application/xml+fhir"} fmt))]
+    (str mime "; charset=UTF-8")))
 
 (defn- responce-content-type
   [resp fmt body]
   (update-in resp [:headers] merge {"content-type" (content-type-format fmt body)}))
 
+
+(defn html-layout [content]
+  (html5
+    {:lang "en"}
+    [:head
+     [:title "fhirbase"]
+     (include-css "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css")
+     [:style "body { padding: 50px; font-size: 18px;} "]
+     [:body
+      [:div  {:class "container"} content ]
+      [:script "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) })(window,document,'script','//www.google-analytics.com/analytics.js','ga'); ga('create', 'UA-48979968-3', 'auto'); ga('send', 'pageview');"]
+      ]]))
+
+(defn html-face [req]
+  (-> (response
+        (html-layout
+          [:div
+           [:div.page-header
+            [:h3 "fhirplace: FHIR server implementation"
+              [:br]
+              "backed by "
+              [:a {:href "https://github.com/fhirbase/fhirbase"} "fhirbase"]]]
+           [:ul
+            [:li [:a {:href "https://github.com/fhirbase/fhirplace"} "fhirplace on github"]]
+            [:li [:a {:href "/fhirface/index.html"} "fhirface - generic fhir client"]]
+            [:li [:a {:href "/regi/index.html"}   "sample application"]]]
+           [:hr]]))
+      (status 200)))
+
 (defn <-format [h]
   "formatting midle-ware
   expected body is instance of fhir reference impl"
   (fn [req]
-    (let [{bd :body :as resp} (h req)
-          fmt (determine-format req)]
-      ;; TODO set right headers
-      (println "Formating: " bd)
-      (responce-content-type
-       (if (and bd (or (instance? Resource bd) (instance? AtomFeed bd)))
-         (assoc resp :body (f/serialize fmt bd))
-         resp) fmt bd))))
+    (if-let [fmt (determine-format req)]
+      (let [{bd :body :as resp} (h req) ]
+        ;; TODO set right headers
+        (println "Formating: " bd)
+        (responce-content-type
+          (if (and bd (or (instance? Resource bd) (instance? AtomFeed bd)))
+            (assoc resp :body (f/serialize fmt bd))
+            resp) fmt bd))
+      (html-face req))))
 
 (defn- cors-options
   [req]
@@ -88,7 +118,7 @@
 (defn- allowed-origin
   "May check if allow CORS access here"
   [req]
-   (get-in req [:headers "origin"]))
+  (get-in req [:headers "origin"]))
 
 (defn <-cors [h]
   "Cross-origin resource sharing midle-ware"
@@ -229,7 +259,7 @@
 (defn =search [{{rt :type :as param} :params :as req}]
   (println "QUERY-STRING: " (:query-string req))
   (let [query (or (:query-string req) "")]
-   {:body (db/-search rt query)}))
+    {:body (db/-search rt query)}))
 
 (defn =tags-all [_]
   {:body (db/-tags)})
@@ -300,8 +330,8 @@
     (if (= rt resource-type)
       (let [item (db/-create resource-type json jtags)]
         (-> (resource-resp item)
-           (status 201)
-           (header "Category" (fc/encode-tags tags))))
+            (status 201)
+            (header "Category" (fc/encode-tags tags))))
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
 
 (defn =update
