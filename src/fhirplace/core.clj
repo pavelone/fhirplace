@@ -104,8 +104,8 @@
 (def app (-> dispatch
              (resolve-handler)
              (resolve-route)
-             (fhirplace.app/<-cors)
              (fhirplace.app/<-format)
+             (fhirplace.app/<-cors)
              (ch/site)
              (rmf/wrap-file "resources/public")
              (strip-context)))
