@@ -95,7 +95,9 @@
           (if (and bd (or (instance? Resource bd) (instance? AtomFeed bd)))
             (assoc resp :body (f/serialize fmt bd))
             resp) fmt bd))
-      (html-face req))))
+      (if (:cors req)
+        (h req)
+        (html-face req)))))
 
 (defn- cors-options
   [req]
