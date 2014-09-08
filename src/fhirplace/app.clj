@@ -83,21 +83,25 @@
            [:hr]]))
       (status 200)))
 
+
+(defn- serializable? [bd]
+     (and bd
+          (or (instance? Resource bd)
+              (instance? AtomFeed bd))))
+
+;; TODO set right headers
 (defn <-format [h]
   "formatting midle-ware
   expected body is instance of fhir reference impl"
   (fn [req]
-    (if-let [fmt (determine-format req)]
-      (let [{bd :body :as resp} (h req) ]
-        ;; TODO set right headers
-        (println "Formating: " bd)
-        (responce-content-type
-          (if (and bd (or (instance? Resource bd) (instance? AtomFeed bd)))
-            (assoc resp :body (f/serialize fmt bd))
-            resp) fmt bd))
-      (if (:cors req)
-        (h req)
-        (html-face req)))))
+    (let [{bd :body :as resp} (h req)
+          fmt (determine-format req)]
+      (println "Formating: " bd)
+      (->
+        (if (serializable? bd)
+          (assoc resp :body (f/serialize fmt bd))
+          resp)
+        (responce-content-type fmt bd)))))
 
 (defn- cors-options
   [req]
