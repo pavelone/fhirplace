@@ -22,9 +22,12 @@ RUN cd ~/ && git clone https://github.com/niquola/dotfiles
 RUN cd ~/dotfiles && bash install.sh
 
 RUN cd ~/ && git clone https://github.com/fhirbase/fhirplace.git
-RUN cd ~/fhirplace && git submodule init && git submodule update && cp lein-env.tpl .lein-env && lein deps
+RUN cd ~/fhirplace && git pull origin master && echo 'v0.0.0'
+RUN cd ~/fhirplace && git submodule init && git submodule update
+RUN cd ~/fhirplace && lein deps
+RUN cd ~/fhirplace && cp lein-env.tpl .lein-env && lein javac
 RUN cd ~/fhirplace && cp dev/production.clj dev/user.clj
 
 EXPOSE 3000
 
-CMD ["bash", "-l", "-c","'cd /home/fhirplace/fhirplace && lein repl'"]
+CMD cd ~/fhirplace && lein repl
