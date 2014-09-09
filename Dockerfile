@@ -30,4 +30,4 @@ RUN cd ~/fhirplace && cp dev/production.clj dev/user.clj
 
 EXPOSE 3000
 
-CMD cd ~/fhirplace && lein repl
+CMD cd ~/fhirplace && env FHIRPLACE_SUBNAME="//$DB_PORT_5432_TCP_ADDR:$DB_PORT_5432_TCP_PORT/fhirbase" lein repl
