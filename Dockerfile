@@ -27,6 +27,8 @@ RUN cd ~/fhirplace && git submodule init && git submodule update
 RUN cd ~/fhirplace && lein deps
 RUN cd ~/fhirplace && cp lein-env.tpl .lein-env && lein javac
 RUN cd ~/fhirplace && cp dev/production.clj dev/user.clj
+RUN mkdir -p ~/fhirplace/resources/public/app
+RUN sudo ln -s ~/fhirplace/resources/public/app /app
 
 EXPOSE 3000
 
