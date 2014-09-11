@@ -30,6 +30,9 @@ RUN cd ~/fhirplace && cp dev/production.clj dev/user.clj
 RUN mkdir -p ~/fhirplace/resources/public/app
 RUN sudo ln -s ~/fhirplace/resources/public/app /app
 
-EXPOSE 3000
+RUN sudo apt-get -qqy install nginx
+RUN sudo cp ~/fhirplace/nginx.conf /etc/nginx/sites-available/default
 
-CMD cd ~/fhirplace && env FHIRPLACE_SUBNAME="//$DB_PORT_5432_TCP_ADDR:$DB_PORT_5432_TCP_PORT/fhirbase" lein repl
+EXPOSE 80
+
+CMD sudo service nginx restart && cd ~/fhirplace && env FHIRPLACE_SUBNAME="//$DB_PORT_5432_TCP_ADDR:$DB_PORT_5432_TCP_PORT/fhirbase" lein repl
