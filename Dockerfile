@@ -33,6 +33,9 @@ RUN sudo ln -s ~/fhirplace/resources/public/app /app
 RUN sudo apt-get -qqy install nginx
 RUN sudo cp ~/fhirplace/nginx.conf /etc/nginx/sites-available/default
 
+RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.16.0/install.sh | bash
+RUN bash -lc 'source ~/.nvm/nvm.sh && nvm install 0.10 && cd ~/fhirplace/fhirface && nvm use 0.10 && npm install && `npm bin`/bower install && `npm bin`/grunt build'
+
 EXPOSE 80
 
 CMD sudo service nginx restart && cd ~/fhirplace && env FHIRPLACE_SUBNAME="//$DB_PORT_5432_TCP_ADDR:$DB_PORT_5432_TCP_PORT/fhirbase" lein repl
