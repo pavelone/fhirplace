@@ -1,5 +1,5 @@
 FROM ubuntu:14.04
-MAINTAINER Nikolay Ryzhikov <niquola@gmail.com>
+MAINTAINER Nikolay Ryzhikov <niquola@gmail.com>, Maksym Bodnarchuk <bodnarchuk@gmail.com>
 
 RUN apt-get -qq update
 RUN apt-get install -qq -y software-properties-common curl
