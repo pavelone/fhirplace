@@ -20,7 +20,6 @@ curl http://localhost:3000/Patient/_search
 
 Root for you FRONTEND project: http://localhost:3000/app/
 Simple access to fhirplace server: http://localhost:3000/fhirface/
-Sample application: http://localhost:3000/regi/
 
 ## License
 
