@@ -56,39 +56,12 @@
   (update-in resp [:headers] merge {"content-type" (content-type-format fmt body)}))
 
 
-(defn html-layout [content]
-  (html5
-    {:lang "en"}
-    [:head
-     [:title "fhirbase"]
-     (include-css "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css")
-     [:style "body { padding: 50px; font-size: 18px;} "]
-     [:body
-      [:div  {:class "container"} content ]
-      [:script "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) })(window,document,'script','//www.google-analytics.com/analytics.js','ga'); ga('create', 'UA-48979968-3', 'auto'); ga('send', 'pageview');"]
-      ]]))
-
-(defn html-face [req]
-  (-> (response
-        (html-layout
-          [:div
-           [:div.page-header
-            [:h3 "fhirplace: FHIR server implementation"
-              [:br]
-              "backed by "
-              [:a {:href "https://github.com/fhirbase/fhirbase"} "fhirbase"]]]
-           [:ul
-            [:li [:a {:href "https://github.com/fhirbase/fhirplace"} "fhirplace on github"]]
-            [:li [:a {:href "/fhirface/index.html"} "fhirface - generic fhir client"]]
-            [:li [:a {:href "/regi/index.html"}   "sample application"]]]
-           [:hr]]))
-      (status 200)))
 
 
 (defn- serializable? [bd]
-     (and bd
-          (or (instance? Resource bd)
-              (instance? AtomFeed bd))))
+  (and bd
+       (or (instance? Resource bd)
+           (instance? AtomFeed bd))))
 
 ;; TODO set right headers
 (defn <-format [h]
@@ -260,8 +233,52 @@
 (defn =profile [{{tp :type} :params :as req}]
   {:body (db/-profile tp)})
 
+(defn html-layout [content]
+  (html5
+    {:lang "en"}
+    [:head
+     [:title "fhirbase"]
+     (include-css "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css")
+     (include-css "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
+     (include-css "/face.css")
+     [:body
+      [:div.wrap content]
+      (include-js "/face.js")
+      ]]))
+
+(defn html-face [req]
+  (-> (response
+        (html-layout
+          [:div
+           [:h1.top
+            [:span {:class "icon logo"}  "L"]
+            "fhirplace "
+            ]
+           [:div.ann
+            [:a {:href "https://github.com/fhirbase/fhirplace"} "Open Source " [:big.fa.fa-github]]
+            " FHIR server backed by "
+            [:a {:href "https://github.com/fhirbase/fhirbase"} "fhirbase"]]
+           [:div.bot
+            [:h2 "Applications:"]
+            [:hr]
+            [:h4
+             [:a {:href "/fhirface/index.html"}
+              [:big.fa.fa-star]
+              " fhirface"]
+             [:small "  generic fhir client"]]
+            [:hr]
+            [:h4
+             [:a {:href "/regi/index.html"}
+              [:big.fa.fa-star]
+              " regi"]
+             [:small "  sample application"]]]
+           ]))
+      (content-type "text/html; charset=UTF-8")
+      (status 200)))
+
 (defn =search-all [req]
-  (throw (Exception. "search-all not implemented")))
+  #_(throw (Exception. "search-all not implemented"))
+  (html-face req))
 
 (defn =search [{{rt :type :as param} :params :as req}]
   (println "QUERY-STRING: " (:query-string req))
