@@ -1,18 +1,42 @@
 (ns fhirplace.core-test
-  (:use midje.sweet)
-  (:require [fhirplace.core :as fc]))
+  (:require
+    [clojure.test :refer :all]
+    [clojure.set :as cs]
+    [fhirplace.app :as fa]
+    [fhirplace.core :as fc]))
 
-(defn mw1 [h]
-  (fn [r]
-    (h (merge r {:a 1 :last 1}))))
+(defn match? [meth url handler]
+  (is
+    (= (get-in (fc/match-route meth url) [:match :fn])
+       handler)))
 
-(defn mw2 [h]
-  (fn [r]
-    (h (merge r {:b 2 :last 2} ))))
+(defn mws? [meth url & mws]
+  (let [route (fc/match-route meth url)
+        should-mws (into #{} mws)
+        is-mws (into #{} (fc/collect-mw route))]
+    (println is-mws)
+    (is (cs/subset? should-mws is-mws))))
 
-(fact
-  "Build stack wrap all midlewares"
-  ((fc/build-stack
-     identity
-     [mw1 mw2]) {}) => {:a 1 :b 2 :last 2})
+(deftest routes-test
+  (match? :GET  "/" fa/=search-all)
+  (match? :POST "/" fa/=transaction)
+  (match? :GET  "/metadata" fa/=metadata)
+  (match? :GET  "/Profile/Patient" fa/=profile)
+  (match? :GET  "/Patient" fa/=search)
+  (match? :GET  "/Patient/_search" fa/=search)
+  (match? :POST "/Patient" fa/=create)
+  (match? :GET  "/Patient/_tags" fa/=resource-type-tags)
+  (match? :GET  "/Patient/_history" fa/=history-type)
 
+  (match? :GET  "/Patient/1/_tags" fa/=resource-tags)
+  )
+
+(deftest middle-wares-test
+  (mws? :GET  "/" fa/<-outcome-on-exception)
+  (mws? :POST "/" fa/<-outcome-on-exception)
+  (mws? :GET "/_tags" fa/<-outcome-on-exception)
+  (mws? :PUT "/Patient/5"
+        fa/->parse-body!
+        fa/->parse-tags!
+        fa/->valid-input!
+        fa/->latest-version!))
