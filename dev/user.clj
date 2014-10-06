@@ -1,14 +1,21 @@
-(comment (ns user
-  "Namespace to support hacking at the REPL."
-  (:require [fhirplace.core :as fc]
-            [clojure.tools.namespace.repl :as ns-repl]
-            [clojure.tools.namespace.move :refer :all]
-            [clojure.repl :refer :all]
-            [clojure.pprint :refer :all]
-            [clojure.java.io :as cjio]
-            [clojure.string :as str]
-            [clojure.java.classpath :as cjc]
-            [criterium.core :as crit]))
+(ns user
+  (:require [fhirplace.core :as fc]))
 
-(defn reset []
-  (ns-repl/refresh)))
+(println
+  "
+  Your server is in srv Var
+  To start server run (start)
+  To stop eval (stop)
+  ")
+
+(def srv  (atom nil))
+
+(defn start  []
+  (if @srv
+    (println "Server already started")
+    (reset! srv  (fc/start-server))))
+
+(defn stop  []
+  (if @srv
+    (.stop @srv)
+    (println "No server started")))

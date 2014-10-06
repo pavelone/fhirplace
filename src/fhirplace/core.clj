@@ -45,8 +45,8 @@
                                 '->valid-input!
                                 '=update)
                    "_history" {GET (h '=history)
-                   [:vid]     {"_tags"   {GET (h '=resource-version-tags) }
-                               GET (h '=vread)}
+                               [:vid]     {"_tags"   {GET (h '=resource-version-tags) }
+                                           GET (h '=vread)}
                                "_tags"  {GET (h '=resource-version-tags)
                                          POST (h '->parse-tags! '->check-tags '=affix-resource-version-tags)
                                          "_delete" (POST (h '=remove-resource-version-tags))}
@@ -101,6 +101,12 @@
       (let [new-uri  (.substring uri  (.length context))]
         (h (assoc req :uri new-uri))))))
 
+(defn base-url  [h]
+  (fn [{:keys [ scheme server-name server-port] :as req}]
+    (h (assoc req :cfg
+              {:base (str scheme "://" server-name (if (= server-port 80) "" (str ":" server-port)))}
+              ))))
+
 (def app (-> dispatch
              (resolve-handler)
              (resolve-route)
@@ -108,6 +114,7 @@
              (fhirplace.app/<-cors)
              (ch/site)
              (rmf/wrap-file "resources/public")
+             (base-url)
              (strip-context)))
 
 (defn start-server []
