@@ -104,7 +104,7 @@
 (defn base-url  [h]
   (fn [{:keys [ scheme server-name server-port] :as req}]
     (h (assoc req :cfg
-              {:base (str scheme "://" server-name (if (= server-port 80) "" (str ":" server-port)))}
+              {:base (str (name scheme) "://" server-name (if (= server-port 80) "" (str ":" server-port)))}
               ))))
 
 (def app (-> dispatch

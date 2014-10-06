@@ -97,7 +97,7 @@
 (defn status? [status response]
   (is (= (:status response) status)))
 
-((deftest test-simple-crud
+(deftest test-simple-crud
    (status? 200 (:metadata subj))
    (is (instance? Conformance (:conformance subj)))
 
@@ -131,58 +131,4 @@
                   (f/parse (:body (:history_of_resource subj)))))
 
    #_(status? 204 (:delete_resource subj))
-   ))
-
-
-
-(comment
-  (def-scenario create-interaction
-    {
-     :create-resource (fnk [resource-type format] (POST (url (str resource-type "?_format=" (mime-type format))) {:body (fixture (str (cs/lower-case resource-type) "." format))}))
-     :create-location (fnk [create-resource] (get-header "Location" create-resource))
-     :create-location-parts (fnk [create-location] (re-matches #"(.*)/(.*)/(.*)/_history/(.*)" create-location))
-     :create-location-base (fnk [create-location-parts] (create-location-parts 1))
-     :create-location-type (fnk [create-location-parts] (create-location-parts 2))
-     :create-location-id (fnk [create-location-parts] (create-location-parts 3))
-     :create-location-vid (fnk [create-location-parts] (create-location-parts 4))
-     })
-
-  (def-scenario create-bad-interaction
-    {
-     :create-resource-bad (fnk [resource-type format] (POST (url (str resource-type "?_format=" (mime-type format))) {:body "can not parse this body"}))
-     :create-resource-bad-body (fnk [create-resource-bad] (f/parse (:body create-resource-bad)))
-     })
-
-  (def-scenario create-not-interaction
-    {
-     :create-resource-not (fnk [resource-type format] (POST (url (str "NotFound" resource-type "NotFound" "?_format=" (mime-type format))) {}))
-     })
-
-  (def-scenario create-unprocessable-interaction
-    {
-     :create-resource-unprocessable (fnk [resource-type format] (POST (url (str resource-type "?_format=" (mime-type format))) {:body (fixture (str "invalid-" (cs/lower-case resource-type) "." format))}))
-     :create-resource-unprocessable-body (fnk [create-resource-unprocessable] (f/parse (:body create-resource-unprocessable)))
-     })
-
-  ((deftest test-create-interaction
-     (doseq [fmt ["json" "xml"] res ["Alert" "Observation" "Patient"]]
-       (let [create-subject (create-interaction {:resource-type res :format fmt})
-             create-bad-subject (create-bad-interaction {:resource-type res :format fmt})
-             create-not-subject (create-not-interaction {:resource-type res :format fmt})
-             create-unprocessable-subject (create-unprocessable-interaction {:resource-type res :format fmt})]
-         (status? 201 (:create-resource create-subject))
-         (is (= (:create-location-base create-subject) base-url))
-         (is (= (:create-location-type create-subject) res))
-         (is (:create-location-id create-subject))
-         (is (:create-location-vid create-subject))
-
-         (status? 400 (:create-resource-bad create-bad-subject))
-         (is (instance? OperationOutcome (:create-resource-bad-body create-bad-subject)))
-
-         (status? 404 (:create-resource-not create-not-subject))
-
-         (status? 422 (:create-resource-unprocessable create-unprocessable-subject))
-         (is (instance? OperationOutcome (:create-resource-unprocessable-body create-unprocessable-subject)))))))
-
-
-  )
+   )
