@@ -9,6 +9,7 @@
             [fhirplace.category :as fc]
             [fhir.operation-outcome :as fo]
             [fhirplace.db :as db]
+            [fhirplace.infra :as fi]
             [ring.adapter.jetty :as jetty]
             [clojure.data.json :as json]
             [hiccup.page :refer (html5 include-css include-js)]
@@ -16,26 +17,6 @@
 
 (import 'org.hl7.fhir.instance.model.Resource)
 (import 'org.hl7.fhir.instance.model.AtomFeed)
-
-(defn- request-format
-  [req]
-  (if-let [ct (get-in req [:headers "content-type"])]
-    (if-let [mime (first (cs/split ct #"\;"))]
-      ({"application/json+fhir" :json "application/xml+fhir" :xml} mime))))
-
-(defn- determine-format
-  "Determines request format (:xml or :json)."
-  [{{fmt :_format} :params :as req}]
-  (or (get {"json" :json
-            "application/json" :json
-            "application/json+fhir" :json
-            "xml" :xml
-            "text/xml" :xml
-            "application/xml" :xml
-            "application/atom+xml" :xml
-            "application/xml+fhir" :xml} fmt)
-      (request-format req)
-      :json))
 
 (defn- content-type-format
   [fmt bd]
@@ -50,8 +31,6 @@
   (update-in resp [:headers] merge {"content-type" (content-type-format fmt body)}))
 
 
-
-
 (defn- serializable? [bd]
   (and bd
        (or (instance? Resource bd)
@@ -63,7 +42,7 @@
   expected body is instance of fhir reference impl"
   (fn [req]
     (let [{bd :body :as resp} (h req)
-          fmt (determine-format req)]
+          fmt (fi/get-format req)]
       (println "Formating: " bd)
       (->
         (if (serializable? bd)
@@ -71,37 +50,6 @@
           resp)
         (responce-content-type fmt bd)))))
 
-(defn- cors-options
-  [req]
-  (if (= :options (:request-method req))
-    (do
-      (println "CORS OPTIONS")
-      (let [headers (get-in req [:headers "access-control-request-headers"])
-            method (get-in req [:headers "access-control-request-method"])]
-        (println "Request-Headers:" headers "Request-Method" methods)
-        {:status 200
-         :body "preflight complete"
-         :headers {"Access-Control-Allow-Headers" headers
-                   "Access-Control-Allow-Methods" method}}))))
-
-(defn- acao
-  [resp origin]
-  (update-in resp [:headers] merge {"Access-Control-Allow-Origin" origin
-                                    "Access-Control-Expose-Headers" "Location, Content-Location, Category, Content-Type"}))
-
-(defn- allowed-origin
-  "May check if allow CORS access here"
-  [req]
-  (get-in req [:headers "origin"]))
-
-(defn <-cors [h]
-  "Cross-origin resource sharing midle-ware"
-  (fn [req]
-    (if-let [origin (allowed-origin req)]
-      (do
-        (println "CORS Origin: " origin)
-        (acao (or (cors-options req) (h req)) origin))
-      (h req))))
 
 (defn- get-stack-trace [e]
   (let [sw (java.io.StringWriter.)]

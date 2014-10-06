@@ -3,6 +3,7 @@
             [compojure.handler :as ch]
             [ring.middleware.file :as rmf]
             [fhirplace.app :refer :all]
+            [fhirplace.cors :as fc]
             [fhirplace.infra :as fi :refer [h]]
             [ring.adapter.jetty :as jetty]
             [environ.core :as env]
@@ -98,14 +99,13 @@
     (println "Middle-wares: " (pr-str mws))
     ((fi/build-stack handler mws) req)))
 
-
 (def app (-> dispatch
              (resolve-route)
              (fhirplace.app/<-format)
-             (fhirplace.app/<-cors)
+             (fi/wrap-cfg)
+             (fc/<-cors)
              (ch/site)
-             (rmf/wrap-file "resources/public")
-             (fi/wrap-cfg)))
+             (rmf/wrap-file "resources/public")))
 
 (defn start-server []
   (jetty/run-jetty #'app {:port (env/env :fhirplace-web-port) :join? false}))

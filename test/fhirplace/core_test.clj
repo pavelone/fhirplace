@@ -28,8 +28,7 @@
   (match? :GET  "/Patient/_tags" fa/=resource-type-tags)
   (match? :GET  "/Patient/_history" fa/=history-type)
 
-  (match? :GET  "/Patient/1/_tags" fa/=resource-tags)
-  )
+  (match? :GET  "/Patient/1/_tags" fa/=resource-tags))
 
 (deftest middle-wares-test
   (mws? :GET  "/" fa/<-outcome-on-exception)
@@ -39,4 +38,5 @@
         fa/->parse-body!
         fa/->parse-tags!
         fa/->valid-input!
-        fa/->latest-version!))
+        fa/->latest-version!
+        fa/<-outcome-on-exception))
