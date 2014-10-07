@@ -1,42 +1,31 @@
 (ns fhirplace.core-test
   (:require
     [clojure.test :refer :all]
-    [clojure.set :as cs]
-    [fhirplace.app :as fa]
     [fhirplace.core :as fc]))
 
-(defn match? [meth url handler]
+(defn mk-mw [msg]
+  (fn [h]
+    (fn [r]
+      (h (conj r msg)))))
+
+(deftest test-build-stack
+  (let [st (fc/build-stack
+             (fn [req] (conj req "handler"))
+             [(mk-mw "inter-1")
+              (mk-mw "inter-2")
+              (mk-mw "inter-3")])]
+
+    (is (= (st [])
+           ["inter-1" "inter-2" "inter-3" "handler"]))))
+
+(deftest test-get-cfg
   (is
-    (= (get-in (fc/match-route meth url) [:match :fn])
-       handler)))
+    (= (fc/base-url {:scheme :http
+                     :server-name "hostic"
+                     :server-port 3000})
+       "http://hostic:3000"))
 
-(defn mws? [meth url & mws]
-  (let [route (fc/match-route meth url)
-        should-mws (into #{} mws)
-        is-mws (into #{} (fc/collect-mw route))]
-    (println is-mws)
-    (is (cs/subset? should-mws is-mws))))
-
-(deftest routes-test
-  (match? :GET  "/" #'fa/=search-all)
-  (match? :POST "/" #'fa/=transaction)
-  (match? :GET  "/metadata" #'fa/=metadata)
-  (match? :GET  "/Profile/Patient" #'fa/=profile)
-  (match? :GET  "/Patient" #'fa/=search)
-  (match? :GET  "/Patient/_search" #'fa/=search)
-  (match? :POST "/Patient" #'fa/=create)
-  (match? :GET  "/Patient/_tags" #'fa/=resource-type-tags)
-  (match? :GET  "/Patient/_history" #'fa/=history-type)
-
-  (match? :GET  "/Patient/1/_tags" #'fa/=resource-tags))
-
-(deftest middle-wares-test
-  (mws? :GET  "/" #'fa/<-outcome-on-exception)
-  (mws? :POST "/" #'fa/<-outcome-on-exception)
-  (mws? :GET "/_tags" #'fa/<-outcome-on-exception)
-  (mws? :PUT "/Patient/5"
-        #'fa/->parse-body!
-        #'fa/->parse-tags!
-        #'fa/->valid-input!
-        #'fa/->latest-version!
-        #'fa/<-outcome-on-exception))
+  (= (fc/base-url {:scheme :https
+                   :server-name "hostic"
+                   :server-port 80})
+     "https://hostic"))

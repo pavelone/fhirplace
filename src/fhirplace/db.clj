@@ -20,47 +20,16 @@
           :cors true
           }))
 
-(defn cfg-str  [x]
-  (json/write-str  (cfg x)))
+(defn cfg-str  [x] (json/write-str  (cfg x)))
 
-(defn- tbl-name [tp]
-  (keyword (.toLowerCase (name tp))))
-
-(defn- htbl-name [tp]
-  (keyword (str (.toLowerCase (name tp)) "_history")))
-
-
-;;TODO move to fhirbase
 (defn -deleted? [cfg tp id]
-  (and
-    (not (q-one {:select [:logical_id]
-                 :from [(tbl-name tp)]
-                 :where [:= :logical_id id]}))
-    (q-one {:select [:logical_id]
-            :from [(htbl-name tp)]
-            :where [:= :logical_id id]})))
+  (call* :fhir_is_deleted_resource (cfg-str cfg) tp id))
 
-;;TODO move to fhirbase
 (defn -latest? [cfg tp id vid]
-  {:pre [(not (nil? tp))]}
-  (println "-latest?" tp " " id " " vid)
-  (q-one {:select [:*]
-          :from [(tbl-name tp)]
-          :where [:and
-                  [:= :logical_id id]
-                  [:= :version_id vid] ]
-          :limit 1}))
+  (call* :fhir_is_latest_resource (cfg-str cfg) tp id vid))
 
-;;TODO move to fhirbase
 (defn -resource-exists? [cfg tp id]
-  (->
-    (q {:select [:logical_id]
-        :from   [(tbl-name tp)]
-        :where  [:= :logical_id (java.util.UUID/fromString id)]
-        :limit 1})
-    first
-    nil?
-    not))
+  (call* :fhir_is_resource_exists (cfg-str cfg) tp id))
 
 (defn -create [cfg tp json tags]
   (call* :fhir_create (cfg-str cfg) tp json tags))
