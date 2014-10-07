@@ -2,8 +2,7 @@
   (:use midje.sweet)
   (:require [fhirplace.app :as app]
             [fhir :as f]
-            [clojure.test :refer :all]
-            [fhirplace.test-helper :as ft]))
+            [clojure.test :refer :all]))
 
 
 (def parse-tags-mv (app/->parse-tags! identity))

@@ -1,25 +1,28 @@
 (ns fhirplace.external-test
-  (:use midje.sweet)
-  (:require [fhirplace.db :as db]
-            [fhir :as f]
-            [clojure.test :refer :all]
-            [fhirplace.test-helper :as ft]))
+  (:require
+    [clojure.test :refer :all]
+    [fhirplace.db :as db]
+    [fhir :as f]))
 
-#_(print (f/serialize :json (db/-tags)))
 
-((ft/def-db-test integration-test
-   (def pt (db/-create "Patient" (ft/fixture "patient.json") "[]"))
+(def cfg (db/cfg-str {}) )
 
-   (is (not (nil? pt)))
+(deftest integration-test
+   ; (def pt (db/-create cfg "Patient" (th/fixture "patient.json") "[]"))
 
-   (is (db/-latest? "Patient" (:logical_id pt) (:version_id pt)))
-   (let [res (db/-search "Patient" {:_sort ["name"]})]
-     (is (not (nil? pt))))
+   ; (is (not= nil pt))
 
-   (is (> 0 (count (.getEntryList (db/-search "Patient" {:name "Pete" :_sort ["name"]})))))
+   ; (is (db/-latest? cfg "Patient"
+   ;                  (:logical_id pt)
+   ;                  (:version_id pt)))
 
-   (db/-update "Patient" (:logical_id pt) (fixture "patient.json") "[]")
-   (db/-delete "Patient" (:logical_id pt))
-   ))
+   ; (let [res (db/-search cfg  "Patient" {:_sort ["name"]})]
+   ;   (is (not= nil pt)))
 
-(db/qcall* :read "Patient" "bca2a820-d28d-4eca-928d-3cae7c04de19")
+   ; (is (> 0 (count (.getEntryList
+   ;                   (db/-search cfg "Patient" {:name "Pete" :_sort ["name"]})))))
+
+   ; (db/-update cfg "Patient" (:logical_id pt) (th/fixture "patient.json") "[]")
+   ; (db/-delete cfg "Patient" (:logical_id pt))
+   )
+

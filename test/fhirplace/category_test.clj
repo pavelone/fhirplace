@@ -9,8 +9,8 @@
                                                                      :scheme "http://purl.org/net/animals"
                                                                      :label "Canine"}]})
 
-((deftest tags-test
+(deftest tags-test
   (doall
     (for [[s r] samples]
-      (is (= (subj/parse s) r))))))
+      (is (= (subj/parse s) r)))))
 

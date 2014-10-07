@@ -9,13 +9,12 @@
             [fhirplace.category :as fc]
             [fhir.operation-outcome :as fo]
             [fhirplace.db :as db]
-            [fhirplace.infra :as fi]
+            [fhirplace.format :as ff]
             [ring.adapter.jetty :as jetty]
             [clojure.data.json :as json]
             [hiccup.page :refer (html5 include-css include-js)]
             [environ.core :as env]))
 
-(import 'org.hl7.fhir.instance.model.Resource)
 (import 'org.hl7.fhir.instance.model.AtomFeed)
 
 (defn- content-type-format
@@ -31,21 +30,16 @@
   (update-in resp [:headers] merge {"content-type" (content-type-format fmt body)}))
 
 
-(defn- serializable? [bd]
-  (and bd
-       (or (instance? Resource bd)
-           (instance? AtomFeed bd))))
-
 ;; TODO set right headers
 (defn <-format [h]
   "formatting midle-ware
   expected body is instance of fhir reference impl"
   (fn [req]
     (let [{bd :body :as resp} (h req)
-          fmt (fi/get-format req)]
+          fmt (ff/get-format req)]
       (println "Formating: " bd)
       (->
-        (if (serializable? bd)
+        (if (f/serializable? bd)
           (assoc resp :body (f/serialize fmt bd))
           resp)
         (responce-content-type fmt bd)))))
