@@ -19,29 +19,29 @@
 
 ;; /Patient/:id/_history
 (def instance-hx-routes
-  {:GET      (h #'=history)
+  {:GET     (h #'=history)
    "_tags"  instance-hx-tag-routes
-   [:vid]   {:GET     (h #'=vread)
+   [:vid]   {:GET    (h #'=vread)
              "_tags" {:GET (h #'=resource-version-tags)}}})
 
 ;; /Patient/:id/_tags
 (def instance-tag-routes
-  {:GET       (h #'=resource-tags)
-   :POST      (h #'->parse-tags!
-                 #'->check-tags
-                 #'=affix-resource-tags)
+  {:GET      (h #'=resource-tags)
+   :POST     (h #'->parse-tags!
+                #'->check-tags
+                #'=affix-resource-tags)
    "_delete" {:POST (h #'=remove-resource-tags)}})
 
 ;; /Patient/:id/
 (def instance-level-routes
   {:mw [#'->resource-exists! #'->check-deleted!]
-   :GET        (h #'=read)
-   :DELETE     (h #'=delete)
-   :PUT        (h #'->parse-tags!
-                  #'->parse-body!
-                  #'->latest-version!
-                  #'->valid-input!
-                  #'=update)
+   :GET       (h #'=read)
+   :DELETE    (h #'=delete)
+   :PUT       (h #'->parse-tags!
+                 #'->parse-body!
+                 #'->latest-version!
+                 #'->valid-input!
+                 #'=update)
    "_tags"    instance-tag-routes
    "_history" instance-hx-routes })
 

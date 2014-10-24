@@ -40,3 +40,14 @@
 
   (is (= (:tags (->parse-tags! {})) [])))
 
+(def parse-tags-mv (subj/->parse-tags! identity))
+(deftest parse-tags-test
+  (let [req {:headers {"category" "dog; label=\"label\"; scheme=\"scheme\""}}
+        resp (parse-tags-mv req)
+        null-resp (parse-tags-mv {})]
+        ;;wrong-req {:headers {"category" "wrong; format=???=...."}}
+        ;;wrong-resp (parse-tags-mv wrong-req)
+
+    (is (not (empty? (:tags resp))))
+    (is (empty? (:tags null-resp)))
+    #_(is (empty? (:tags wrong-resp)))))

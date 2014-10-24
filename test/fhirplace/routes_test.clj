@@ -4,6 +4,7 @@
     [clojure.set :as cs]
     [fhirplace.app :as fa]
     [fhirplace.core :as fc]
+    [fhirplace.category :as fct]
     [fhirplace.routes :as fr]
     ))
 
@@ -26,7 +27,7 @@
     (is (cs/subset? should-mws is-mws))))
 
 (deftest routes-test
-  (match? :GET  "/" #'fa/=search-all)
+  (match? :GET  "/" #'fa/=html-face)
   (match? :POST "/" #'fa/=transaction)
   (match? :GET  "/metadata" #'fa/=metadata)
   (match? :GET  "/Profile/Patient" #'fa/=profile)
@@ -44,7 +45,7 @@
   (mws? :GET "/_tags" #'fa/<-outcome-on-exception)
   (mws? :PUT "/Patient/5"
         #'fa/->parse-body!
-        #'fa/->parse-tags!
+        #'fct/->parse-tags!
         #'fa/->valid-input!
         #'fa/->latest-version!
         #'fa/<-outcome-on-exception))
