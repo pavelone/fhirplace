@@ -7,137 +7,94 @@
             [clojure.string :as cs]
             [fhir :as f]
             [fhirplace.category :as fc]
+            [fhirplace.views :as fv]
             [fhir.operation-outcome :as fo]
             [fhirplace.db :as db]
-            [fhirplace.format :as ff]
-            [ring.adapter.jetty :as jetty]
-            [clojure.data.json :as json]
-            [hiccup.page :refer (html5 include-css include-js)]
-            [environ.core :as env]))
+            [clojure.stacktrace :as cst]
+            [clojure.data.json :as json]))
 
-(import 'org.hl7.fhir.instance.model.AtomFeed)
-
-(defn- content-type-format
-  [fmt bd]
-  (let [mime (if (and (instance? AtomFeed bd) (= :xml fmt))
-               "application/atom+xml"
-               (get {:json "application/json+fhir"
-                     :xml "application/xml+fhir"} fmt))]
-    (str mime "; charset=UTF-8")))
-
-(defn- responce-content-type
-  [resp fmt body]
-  (update-in resp [:headers] merge {"content-type" (content-type-format fmt body)}))
-
-
-;; TODO set right headers
-(defn <-format [h]
-  "formatting midle-ware
-  expected body is instance of fhir reference impl"
-  (fn [req]
-    (let [{bd :body :as resp} (h req)
-          fmt (ff/get-format req)]
-      (println "Formating: " bd)
-      (->
-        (if (f/serializable? bd)
-          (assoc resp :body (f/serialize fmt bd))
-          resp)
-        (responce-content-type fmt bd)))))
-
-
+;; TODO merge db here
 (defn- get-stack-trace [e]
-  (let [sw (java.io.StringWriter.)]
-    (.printStackTrace e (java.io.PrintWriter. sw))
-    (println "ERROR: " sw)
-    (str sw)))
+  (with-out-str (cst/print-stack-trace e)))
 
-(defn- outcome [status text & issues]
-  {:status status
-   :body (fo/operation-outcome
-           {:text {:status "generated" :div (str "<div>" text "</div>")}
-            :issue issues })})
+(def outcomes
+  {:server-error         500
+   :type-not-supported   404
+   :resource-not-exists  404
+   :resource-not-parsed  400
+   :resource-not-valid   422
+   :resource-deleted     410
+   :not-last-version     412
+   :no-version-info      401
+   :no-tags              422})
 
-(defn <-outcome-on-exception [h]
-  (fn [req]
-    (println "<-outcome-on-exception")
-    (try
-      (h req)
-      (catch Exception e
-        (println "Exception")
-        (println (get-stack-trace e))
-        (outcome 500 "Server error"
-                 {:severity "fatal"
-                  :details (str "Unexpected server error " (get-stack-trace e))})))))
+(defmacro  defmw [nm h prms & body]
+  `(defn ~(symbol nm) [h#]
+     (let [~h h#]
+       (fn ~prms
+         (println ~nm)
+         ~@body))))
+
+(defn- outcome [error text & issues]
+  (println "ERROR[" error "]" text)
+  (let [status (get outcomes error)
+        issues (or issues [{:severity "fatal" :details text}])]
+    {:status status
+     :body (fo/operation-outcome
+             {:text {:status "generated"
+                     :div (str "<div>" text "</div>")}
+              :issue issues})}))
+
+(defmw <-outcome-on-exception h [req]
+  (try (h req)
+       (catch Exception e
+         (outcome :server-error
+                  (str "Unexpected server error " (get-stack-trace e))))))
 
 
-(defn ->type-supported! [h]
-  (fn [{{tp :type} :params :as req}]
-    (println "TODO: ->type-supported!")
-    (if tp
-      (h req)
-      (outcome 404 "Resource type not supported"
-               {:severity "fatal"
-                :details (str "Resource type [" tp "] isn't supported")}))))
+(defmw ->type-supported! h
+  [{{tp :type} :params :as req}]
+  (if tp
+    (h req)
+    (outcome :type-not-supported
+             (str "Resource type [" tp "] isn't supported"))))
 
-(defn ->resource-exists! [h]
-  (fn [{{tp :type id :id } :params cfg :cfg :as req}]
-    (println "->resource-exists!")
-    (if (db/-resource-exists? cfg tp id)
-      (h req)
-      (outcome 404 "Resource not exists"
-               {:severity "fatal"
-                :details (str "Resource with id: " id " not exists")}))))
+(defmw ->resource-exists! h
+  [{{tp :type id :id } :params cfg :cfg :as req}]
+  (if (db/-resource-exists? cfg tp id)
+    (h req)
+    (outcome :resource-not-exists
+             (str "Resource with id: " id " not exists"))))
 
-;; TODO: move to fhir f/errors could do it
 (defn- safe-parse [x]
   (try
     [:ok (f/parse x)]
     (catch Exception e
       [:error (str "Resource could not be parsed: \n" x "\n" e)])))
 
-(defn ->parse-tags!
-  "parse body and put result as :data"
-  [h]
-  (fn [req]
-    (println "->parse-tags!")
-    (if-let [c (get-in req [:headers "category"])]
-      (h (assoc req :tags (fc/safe-parse c)))
-      (h (assoc req :tags [])))))
+;; "parse body and put result as :data"
+(defmw ->parse-body! h
+  [{bd :body :as req}]
+  (let [[st res] (safe-parse (slurp bd)) ]
+    (if (= st :ok)
+      (h (assoc req :data res))
+      (outcome :resource-not-parsed res))))
 
-(defn ->parse-body!
-  "parse body and put result as :data"
-  [h]
-  (fn [{bd :body :as req}]
-    (println "->parse-body!")
-    (let [[st res] (safe-parse (slurp bd)) ]
-      (if (= st :ok)
-        (h (assoc req :data res))
-        (outcome 400 "Resource could not be parsed"
-                 {:severity "fatal"
-                  :details res})))))
-
-(defn ->valid-input! [h]
-  "validate :data key for errors"
-  (fn [{res :data :as req}]
-    (println "->valid-input!")
-    (let [errors (f/errors res)]
-      (if (empty? errors)
-        (h (assoc req :data res))
-        (apply outcome 422
+;"validate :data key for errors"
+(defmw ->valid-input! h
+  [{res :data :as req}]
+  (let [errors (f/errors res)]
+    (if (empty? errors)
+      (h (assoc req :data res))
+      (outcome :resource-not-valid
                "Resource Unprocessable Entity"
-               (map
-                 (fn [e] {:severity "fatal"
-                          :details (str e)})
-                 errors))))))
+               (map #({:severity "fatal" :details (str %)}) errors)))))
 
-(defn ->check-deleted! [h]
-  (fn [{{tp :type id :id} :params cfg :cfg :as req}]
-    (println "->check-deleted!")
-    (if (db/-deleted? cfg tp id)
-      (outcome 410 "Resource was deleted"
-               {:severity "fatal"
-                :details (str "Resource " tp " with " id " was deleted")})
-      (h req))))
+(defmw ->check-deleted! h
+  [{{tp :type id :id} :params cfg :cfg :as req}]
+  (if (db/-deleted? cfg tp id)
+    (outcome :resource-deleted (str "Resource " tp " with " id " was deleted"))
+    (h req)))
 
 ;; TODO: fixme
 (defn- check-latest-version [cfg cl]
@@ -147,22 +104,20 @@
       (println "check-latest " tp " " id " " vid)
       (db/-latest? cfg tp id vid))))
 
-(defn ->latest-version! [h]
-  (fn [{{tp :type id :id} :params cfg :cfg :as req}]
-    (println "->latest-version!")
-    (if-let [cl (get-in req [:headers "content-location"])]
-      (if (check-latest-version cfg cl)
-        (h req)
-        (outcome 412 "Updating not last version of resource"
-                 {:severity "fatal"
-                  :details (str "Not last version")}))
+(defmw ->latest-version! h
+  [{{cl "content-location"} :headers cfg :cfg :as req}]
+  (cond
+    (not cl) (outcome :no-version-info "Provide 'Content-Location' header for update resource")
+    (not (check-latest-version cfg cl)) (outcome :not-last-version "Updating not last version of resource")
+    :else (h req)))
 
-      (outcome 401 "Provide 'Content-Location' header for update resource"
-               {:severity "fatal"
-                :details (str "No 'Content-Location' header")}))))
+(defmw ->check-tags h
+  [{tags :tags :as req}]
+  (if (seq tags)
+    (h req)
+    (outcome :no-tags "Expected not empty tags (i.e. Category header)")))
 
-(def uuid-regexp
-  #"[0-f]{8}-([0-f]{4}-){3}[0-f]{12}")
+;; ACTIONS
 
 (defn =metadata [{cfg :cfg :as req}]
   {:body (db/-conformance cfg)})
@@ -170,52 +125,12 @@
 (defn =profile [{{tp :type} :params cfg :cfg :as req}]
   {:body (db/-profile cfg tp)})
 
-(defn html-layout [content]
-  (html5
-    {:lang "en"}
-    [:head
-     [:title "fhirbase"]
-     (include-css "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css")
-     (include-css "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
-     (include-css "/face.css")
-     [:body
-      [:div.wrap content]
-      (include-js "/face.js")
-      ]]))
-
-(defn html-face [req]
-  (-> (response
-        (html-layout
-          [:div
-           [:h1.top
-            [:span {:class "icon logo"}  "L"]
-            "fhirplace "
-            ]
-           [:div.ann
-            [:a {:href "https://github.com/fhirbase/fhirplace"} "Open Source " [:big.fa.fa-github]]
-            " FHIR server backed by "
-            [:a {:href "https://github.com/fhirbase/fhirbase"} "fhirbase"]]
-           [:div.bot
-            [:h2 "Applications:"]
-            [:hr]
-            [:h4
-             [:a {:href "/fhirface/index.html"}
-              [:big.fa.fa-star]
-              " fhirface"]
-             [:small "  generic fhir client"]]
-            [:hr]
-            [:h4
-             [:a {:href "/regi/index.html"}
-              [:big.fa.fa-star]
-              " regi"]
-             [:small "  sample application"]]]
-           ]))
-      (content-type "text/html; charset=UTF-8")
-      (status 200)))
-
-(defn =search-all [req]
-  #_(throw (Exception. "search-all not implemented"))
-  (html-face req))
+(defn =html-face [req]
+  (->
+    (fv/html-face req)
+    (response)
+    (content-type "text/html; charset=UTF-8")
+    (status 200)))
 
 (defn =search [{{rt :type :as param} :params cfg :cfg :as req}]
   (println "QUERY-STRING: " (:query-string req))
@@ -234,13 +149,6 @@
 (defn =resource-version-tags [{{rt :type id :id vid :vid} :params cfg :cfg}]
   {:body (db/-tags cfg rt id vid)})
 
-(defn ->check-tags [h]
-  (fn [{tags :tags :as req}]
-    (if (seq tags)
-      (h req)
-      (outcome 422 "Tags"
-               {:severity "fatal"
-                :details (str "Expected not empty tags (i.e. Category header)")}))) )
 
 ;;TODO make as middle ware
 (defn =affix-resource-tags [{{rt :type id :id} :params tags :tags cfg :cfg}]
@@ -275,6 +183,7 @@
         tags (:category entry)
         last-modified (:updated entry)
         fhir-res (f/parse (json/write-str (:content entry)))]
+
     (-> {:body fhir-res}
         (header "Location" loc)
         (header "Content-Location" loc)
@@ -289,10 +198,10 @@
         jtags (json/write-str tags)
         resource-type (str (.getResourceType res))]
     (if (= rt resource-type)
-      (let [item (db/-create cfg resource-type json jtags)]
-        (-> (resource-resp item)
-            (status 201)
-            (header "Category" (fc/encode-tags tags))))
+      (-> (db/-create cfg resource-type json jtags)
+          (resource-resp)
+          (status 201)
+          (header "Category" (fc/encode-tags tags)))
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
 
 (defn =update
@@ -339,7 +248,6 @@
 
 (defn =vread [{{rt :type id :id vid :vid} :params cfg :cfg}]
   (let [res (db/-vread cfg rt (str id "/_history/" vid))]
-    (println res)
     (-> (resource-resp res)
         (status 200))))
 

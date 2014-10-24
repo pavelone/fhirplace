@@ -6,7 +6,7 @@
 
 
 (def parse-tags-mv (app/->parse-tags! identity))
-((deftest parse-tags-test
+(deftest parse-tags-test
   (let [req {:headers {"category" "dog; label=\"label\"; scheme=\"scheme\""}}
         wrong-req {:headers {"category" "wrong; format=???=...."}}
         resp (parse-tags-mv req)
@@ -15,5 +15,6 @@
 
     (is (not (empty? (:tags resp))))
     (is (empty? (:tags null-resp)))
-    (is (empty? (:tags wrong-resp)))
-    )))
+    (is (empty? (:tags wrong-resp)))))
+
+

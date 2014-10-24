@@ -21,6 +21,9 @@
     (re-seq re-json x) (fc/from-json x)
     :else (throw (Exception. "Don't know how to parse: " (pr-str x)))))
 
+(defn atom? [res]
+   (instance? AtomFeed res))
+
 (defn serializable? [x]
   (and x
        (or (instance? Resource x)

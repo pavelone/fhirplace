@@ -1,6 +1,7 @@
 (ns fhirplace.routes
   (:require
-    [fhirplace.app :refer :all]))
+    [fhirplace.app :refer :all]
+    [fhirplace.category :refer [->parse-tags!]]))
 
 (defn h
   "mk handler hash by convention"
@@ -53,11 +54,11 @@
 ;; /Patient/
 (def type-level-routes
   {:mw [#'->type-supported!]
-   :POST        (h #'->parse-tags!
-                   #'->parse-body!
-                   #'->valid-input!
-                   #'=create)
-   :GET         (h #'=search)
+   :POST       (h #'->parse-tags!
+                  #'->parse-body!
+                  #'->valid-input!
+                  #'=create)
+   :GET        (h #'=search)
    "_search"   {:GET (h #'=search)}
    "_tags"     {:GET (h #'=resource-type-tags)}
    "_history"  {:GET (h #'=history-type)}
@@ -67,7 +68,7 @@
 ;; /
 (def routes
   {:mw [#'<-outcome-on-exception]
-   :GET        (h #'=search-all)
+   :GET        (h #'=html-face)
    :POST       (h #'=transaction)
    "metadata" {:GET (h #'=metadata)}
    "_tags"    {:GET (h #'=tags-all)}

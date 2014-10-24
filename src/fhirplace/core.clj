@@ -3,6 +3,7 @@
             [compojure.handler :as ch]
             [ring.middleware.file :as rmf]
             [fhirplace.app :refer :all]
+            [fhirplace.format :as ff]
             [fhirplace.cors :as fc]
             [fhirplace.routes :as fr]
             [ring.adapter.jetty :as jetty]
@@ -49,7 +50,7 @@
 
 (def app (-> dispatch
              (resolve-route)
-             (fhirplace.app/<-format)
+             (ff/<-format)
              (wrap-cfg)
              (fc/<-cors)
              (ch/site)
