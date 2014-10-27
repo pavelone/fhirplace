@@ -3,6 +3,7 @@
             [clojure.string :as cs]
             [fhir :as f]
             [fhirplace.pg :as fp]
+            [fhirplace.plugins :as fpl]
             [fhirplace.category :as fc]
             [fhirplace.views :as fv]
             [fhir.operation-outcome :as fo]
@@ -149,7 +150,7 @@
       rur/response))
 
 (defn =html-face [req]
-  (-> (fv/html-face req)
+  (-> (fv/html-face {:plugins (vals (fpl/read-plugins))})
       (rur/response)
       (rur/content-type "text/html; charset=UTF-8")
       (rur/status 200)))

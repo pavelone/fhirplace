@@ -14,7 +14,7 @@
       [:div.wrap content]
       (include-js "/face.js")]]))
 
-(defn html-face [req]
+(defn html-face [{ps :plugins}]
   (html-layout
     [:div
      [:h1.top
@@ -27,14 +27,10 @@
      [:div.bot
       [:h2 "Applications:"]
       [:hr]
-      [:h4
-       [:a {:href "/fhirface/index.html"}
-        [:big.fa.fa-star]
-        " fhirface"]
-       [:small "  generic fhir client"]]
-      [:hr]
-      [:h4
-       [:a {:href "/regi/index.html"}
-        [:big.fa.fa-star]
-        " regi"]
-       [:small "  sample application"]]]]))
+      (for [p ps]
+        [:div
+         [:h4
+          [:a {:href (str "/" (:dir p) "/index.html")}
+           [:big.fa.fa-star] " " (:title p)]
+          [:small "  " (:description p)]]
+         [:hr]])]]))
