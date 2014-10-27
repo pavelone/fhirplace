@@ -54,6 +54,6 @@
     (let [fmt (get-format req)
           {bd :body :as resp} (h req)
           bd (if (f/serializable? bd)(f/serialize fmt bd) bd)]
-      (println "Formating " fmt ": " bd "")
+      #_(println "Formating " fmt ": " bd "")
       (-> (assoc resp :body bd)
           (response-content-type fmt bd)))))
