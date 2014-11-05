@@ -9,6 +9,12 @@
   {:fn (last hnds)
    :mw (into [] (butlast hnds))})
 
+;; /api
+(def api
+  {"app" {:GET (h #'=list-apps)
+          :POST (h #'=upload-app)
+          [:app] {:DELETE  (h #'=rm-app)}}})
+
 ;; /Patient/:id/_history/_tags
 (def instance-hx-tag-routes
   {:GET       (h #'=resource-version-tags)
@@ -68,6 +74,7 @@
 ;; /
 (def routes
   {:mw [#'<-outcome-on-exception]
+   "api" api
    :GET        (h #'=html-face)
    :POST       (h #'=transaction)
    "metadata" {:GET (h #'=metadata)}

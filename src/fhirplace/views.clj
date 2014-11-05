@@ -27,10 +27,10 @@
      [:div.bot
       [:h2 "Applications:"]
       [:hr]
-      (for [p ps]
+      (for [{p :name url :url title :title desc :description} ps]
         [:div
          [:h4
-          [:a {:href (str "/" (:dir p) "/index.html")}
-           [:big.fa.fa-star] " " (:title p)]
-          [:small "  " (:description p)]]
+          [:a {:href url}
+           [:big.fa.fa-star] " " title]
+          [:small "  " desc]]
          [:hr]])]]))

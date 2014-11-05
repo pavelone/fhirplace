@@ -150,7 +150,7 @@
       rur/response))
 
 (defn =html-face [req]
-  (-> (fv/html-face {:plugins (vals (fpl/read-plugins))})
+  (-> (fv/html-face {:plugins (fpl/read-plugins)})
       (rur/response)
       (rur/content-type "text/html; charset=UTF-8")
       (rur/status 200)))
@@ -294,3 +294,29 @@
     (-> (fp/call* :fhir_transaction (cfg-str cfg) json)
         (f/parse)
         (rur/response))))
+;; api
+
+(defn =list-apps [req]
+  (-> (fpl/read-plugins)
+      (json/write-str)
+      (rur/response)))
+
+(defn =upload-app [{form :multipart-params :as req}]
+  (let [tmpfile (get-in form ["file" :tempfile])
+        plugin-name (get form "app")
+        res (fpl/upload plugin-name tmpfile)]
+    (if (= (:exit res) 0)
+      (-> (fpl/read-plugin plugin-name)
+          (json/write-str)
+          (rur/response))
+      {:status 500
+       :body (pr-str res)})))
+
+(defn =rm-app [{{nm :app} :params :as req}]
+  (let [res (fpl/rm nm)]
+    (if (= (:exit res) 0)
+      (-> {:status "removed" :name nm :message (str "app [" nm "] successfully removed")}
+          (json/write-str)
+          (rur/response))
+      {:status 500
+       :body (pr-str res)})))

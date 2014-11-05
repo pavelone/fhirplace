@@ -3,45 +3,67 @@
     [clojure.java.io :as io]
     [clojure.java.shell :as cjs]
     [clojure.string :as cs]
+    [fhirplace.shell :as fs]
     [clojure.data.json :as json])
-  (:import [java.net.URL])
-  )
+  (:import [java.net.URL]))
 
-(defn add-to-plugins [acc file]
+(defn -plugins [acc file]
   (let [plug (-> (io/reader file)
                  (java.io.PushbackReader.)
                  (json/read-json true))]
     (assoc acc (:name plug) (merge plug {:dir (.getName (.getParentFile file))}))))
+
+
+(def base-path (.getPath (io/resource "public")))
+
+(defn plugin-path [nm]
+  (-> (str base-path "/" nm)
+      (io/file)
+      (.getPath)))
+
+(defn read-plugin [nm]
+  (-> (plugin-path nm)
+      (str "/fhir.json")
+      (io/file)
+      (io/reader)
+      (java.io.PushbackReader.)
+      (json/read-json true)
+      (merge {:url (str "/" nm "/index.html")})))
 
 (defn read-plugins []
   (->> (io/resource "public")
        (io/file)
        (.listFiles)
        (filter #(.isDirectory %))
-       (map #(java.io.File. % "fhir.json"))
-       (filter #(.exists %))
-       (reduce add-to-plugins {})))
-
-(read-plugins)
-
-(defn url-to-name [url]
-  (-> (cs/split url #"/")
-      last
-      (cs/split #"\.")
-      first))
-
-(defn plugin-path [nm]
-  (str (.getPath (io/resource "public")) "/" nm))
+       (map #(.getName  %))
+       (map #(read-plugin %))))
 
 (defn url [s] (java.net.URL. s))
 
-(defn pull-plugin-plan [url]
-  (let [nm (url-to-name url)
-        pth (plugin-path nm)
-        clone-cmd ["git" "clone" url pth]]
-    [["rm" "-rf" pth] clone-cmd]))
+(defn rm [nm]
+  (let [plugin-path (plugin-path nm)
+        cmd (fs/shell [:rm :-rf plugin-path])]
+    (println cmd)
+    (cjs/sh "bash" "-c" cmd)))
 
-(defn exec-plan [plan]
-  (doseq [cmd plan]
-    (apply cjs/sh cmd)))
+;; TODO support for zip
+(defn upload [nm tmpfile]
+  (let [tar-path (.getPath tmpfile)
+        plugin-path (plugin-path nm)
+        cmd (fs/shell
+              [:and
+               [:rm :-rf plugin-path]
+               [:mkdir :-p plugin-path]
+               [:cd plugin-path]
+               [:tar :-xzf tar-path]
+               [:ls :-lah]])]
+    (println cmd)
+    (cjs/sh "bash" "-c" cmd)))
 
+(comment
+  (read-plugins)
+  (read-plugin "test")
+
+  (def tmpfile (io/file "/home/devel/fhirplace-empty-plugin/arch.tar.gz"))
+  (rm "test")
+  (println (upload "test" tmpfile)))
