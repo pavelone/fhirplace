@@ -22,13 +22,18 @@
       (.getPath)))
 
 (defn read-plugin [nm]
-  (-> (plugin-path nm)
-      (str "/fhir.json")
-      (io/file)
-      (io/reader)
-      (java.io.PushbackReader.)
-      (json/read-json true)
-      (merge {:url (str "/" nm "/index.html")})))
+  (let [manifest-file (-> (plugin-path nm) (str "/fhir.json") (io/file))]
+    (->
+      (if (.exists manifest-file)
+        (try
+          (->  manifest-file
+              (io/reader)
+              (java.io.PushbackReader.)
+              (json/read-json true))
+          (catch Exception e
+            {:name nm :title nm :description (str "Error while reading manifest " e)}))
+        {:name nm :title nm :description "plugin without manifest"})
+      (merge {:url (str "/" nm "/index.html")}))))
 
 (defn read-plugins []
   (->> (io/resource "public")
