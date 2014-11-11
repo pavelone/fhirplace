@@ -6,6 +6,7 @@
             [fhirplace.plugins :as fpl]
             [fhirplace.category :as fc]
             [fhirplace.views :as fv]
+            [hiccup.core :as hc]
             [fhir.operation-outcome :as fo]
             [clojure.stacktrace :as cst]
             [clojure.data.json :as json]))
@@ -64,8 +65,9 @@
 (defmw <-outcome-on-exception h [req]
   (try (h req)
        (catch Exception e
+         (println "EXEPTION:" (get-stack-trace e))
          (outcome :server-error
-                  (str "Unexpected server error " (get-stack-trace e))))))
+                  (str "Unexpected server error " (hc/h (get-stack-trace e)))))))
 
 
 (defmw ->type-supported! h
