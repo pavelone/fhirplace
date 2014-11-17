@@ -28,7 +28,7 @@ COPY . /home/fhir/fhirplace
 RUN sudo chown -R fhir:fhir /home/fhir/fhirplace
 RUN cd ~/fhirplace && git submodule init && git submodule update
 RUN cd ~/fhirplace && lein deps
-RUN cd ~/fhirplace && cp lein-env.tpl .lein-env && lein javac
+RUN cd ~/fhirplace && lein javac
 RUN cd ~/fhirplace && cp dev/production.clj dev/user.clj
 RUN mkdir -p ~/fhirplace/resources/public/app
 RUN sudo ln -s ~/fhirplace/resources/public/app /app
@@ -38,4 +38,11 @@ RUN sudo cp ~/fhirplace/nginx.conf /etc/nginx/sites-available/default
 
 EXPOSE 80
 
-CMD sudo service nginx restart && cd ~/fhirplace && env FHIRPLACE_SUBNAME="//$DB_PORT_5432_TCP_ADDR:$DB_PORT_5432_TCP_PORT/fhirbase" lein repl
+CMD export FHIRPLACE_WEB_PORT=3000 \
+    FHIRPLACE_SUBPROTOCOL="postgresql" \
+    FHIRPLACE_SUBNAME="//$DB_PORT_5432_TCP_ADDR:$DB_PORT_5432_TCP_PORT/fhirbase" \
+    FHIRPLACE_USER="fhirbase" \
+    FHIRPLACE_PASSWORD="fhirbase" ; \
+    sudo service nginx restart \
+    && cd ~/fhirplace \
+    && lein repl

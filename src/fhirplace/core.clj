@@ -57,6 +57,6 @@
              (rmf/wrap-file "resources/public")))
 
 (defn start-server []
-  (jetty/run-jetty #'app {:port (env/env :fhirplace-web-port) :join? false}))
+  (jetty/run-jetty #'app {:port (Integer. (env/env :fhirplace-web-port)) :join? false}))
 
 (defn stop-server [server] (.stop server))
