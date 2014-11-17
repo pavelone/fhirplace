@@ -15,6 +15,7 @@ Vagrant.configure('2') do |config|
       docker.name = 'fhirplace'
       docker.link('fhirbase:db')
       docker.volumes = ['/home/danil/src/vendor/waveaccess/fhirplace/resources/public/fhirface:/app']
+      docker.create_args = ['-t', '-i']
       docker.vagrant_vagrantfile = './Vagrantfile.proxy'
     end
   end
