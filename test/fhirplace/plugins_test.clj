@@ -6,8 +6,6 @@
 (def test-url "https://github.com/fhirbase/fhirplace-empty-plugin.git")
 
 (deftest test-utils
-  (is (= (fp/url-to-name test-url)
-         "fhirplace-empty-plugin"))
   (is (not (nil? (fp/plugin-path "ups")))))
 
 

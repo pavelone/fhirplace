@@ -35,7 +35,7 @@ Simple access to fhirplace server: http://localhost:3000/fhirface/
 
 ## Service
 
-> All premium services from developers of Fhirbase projects 
+> All premium services from developers of Fhirbase projects
 > should be requested from Choice Hospital Systems (http://Choice-HS.com)
 
 ## License
