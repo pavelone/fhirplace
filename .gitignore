@@ -6,6 +6,7 @@ pom.xml.asc
 *.jar
 *.swp
 *.class
+.vagrant/
 /.lein-*
 /.nrepl-port
 /resources/config.clj
