@@ -139,6 +139,30 @@ Click <kbd>Tools -> Query tool</kbd> menu and SQL editor window will appear.
 
 ![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-sql-editor.png)
 
+Copy-paste following SQL query:
+
+```sql
+SELECT fhir_create(
+  '{"base":"https://localhost:3000/"}'::jsonb,
+  'Organization',
+  '{"resourceType":"Organization","text":{"status":"generated","div":"<div>\n      <p>XYZ Insurance</p>\n    </div>"},"identifier":[{"system":"urn:oid:2.16.840.1.113883.3.19.2.3","value":"666666"}],"name":"XYZ Insurance"}'::jsonb,
+  '[]'::jsonb
+);
+```
+
+Press <kbd>F5</kbd> or click <kbd>Query -> Execute</kbd> menu to run
+query. You should see result in "Output" pane:
+
+![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-sql-result.png)
+
+That means query was executed successfuly. Now let's try to find newly
+created Organization with FHIR search functionality. Copy-paste
+following query in editor window:
+
+```sql
+SELECT 'fuck you';
+```
+
 ## Service
 
 > All premium services from developers of Fhirbase projects
