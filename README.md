@@ -157,11 +157,18 @@ query. You should see result in "Output" pane:
 
 That means query was executed successfuly. Now let's try to find newly
 created Organization with FHIR search functionality. Copy-paste
-following query in editor window:
+following query in editor window and execute it:
 
 ```sql
-SELECT 'fuck you';
+SELECT * FROM search(
+  'Organization'::text,
+  'name=XYZ'
+);
 ```
+
+In "Output" pane you'll see Organization resource we inserted in previous step.
+
+![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-sql-search-result.png)
 
 ## Service
 
