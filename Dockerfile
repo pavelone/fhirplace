@@ -39,7 +39,7 @@ RUN sudo cp ~/fhirplace/nginx.conf /etc/nginx/sites-available/default
 RUN cd ~ \
     && git clone https://github.com/fhirbase/fhirface.git \
     && cd ~/fhirface \
-    && source ~/.nvm/nvm.sh \
+    && . ~/.nvm/nvm.sh \
     && nvm use 0 \
     && npm install \
     && `npm bin`/bower install \
