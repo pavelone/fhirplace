@@ -39,6 +39,9 @@ If you're runnig some flavour of Linux, make sure you have Docker installed:
 $ docker --version # or docker.io --version
 ```
 
+If `docker` binary is not present, install it using your
+distributive's package manager, e.g. `sudo apt-get install docker.io`.
+
 ### Installing Vagrant
 
 [Vagrant](https://www.vagrantup.com/) is a simple and powerful
@@ -84,9 +87,12 @@ Then start FHIRPlace VMs with command:
 vagrant up fhirbase && vagrant up fhirplace
 ```
 
-First VMs startup can take a lot of time because Vagrant have to
+Initial VMs startup can take a lot of time because Vagrant have to
 download several OS images (about 1.5 Gb total) and unpack them. Next
 startups will be much faster (almost instant).
+
+If Vagrant won't report any errors, direct your browser to
+http://localhost:3000/ and you'll see FHIRPlace welcome page.
 
 ### Stopping VMs
 
@@ -97,6 +103,17 @@ following command:
 ```bash
 vagrant halt fhirbase fhirplace
 ```
+
+## Accessing FHIRBase
+
+You can access FHIRBase directly using any PostgreSQL client like
+`psql` utility or [pgAdmin](http://www.pgadmin.org/). Use following
+connection paremeters:
+
+| host     | localhost |
+| port     | 5433      |
+| user     | fhirbase  |
+| password | fhirbase  |
 
 ## Service
 
