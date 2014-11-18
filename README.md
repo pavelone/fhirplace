@@ -123,14 +123,21 @@ Password  | fhirbase
 
 ![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-connection.png)
 
-Click "OK" and you will see new server appeared in left sidebar.
+Click "OK" and you will see new server appeared in the left sidebar.
 
 ![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-new-server.png)
 
-Double-click newly created server to connect to it. When expand
+Double-click newly created server to connect to it. Then expand
 "Databases" subtree and double-click "fhirbase" database.
 
 ![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-fhirbase-db.png)
+
+Now you're connected to `fhirbase` database and ready to perform SQL
+queries. Let's try to create new [Organization resource](http://www.hl7.org/implement/standards/fhir/organization.html).
+
+Click <kbd>Tools -> Query tool</kbd> menu and SQL editor window will appear.
+
+![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-sql-editor.png)
 
 ## Service
 
