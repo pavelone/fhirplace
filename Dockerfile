@@ -37,10 +37,11 @@ RUN sudo apt-get -qqy install nginx
 RUN sudo cp ~/fhirplace/nginx.conf /etc/nginx/sites-available/default
 
 RUN cd ~ \
-    && git clone https://github.com/fhirbase/fhirface.git \
-    && cd ~/fhirface \
+    && exec /bin/bash --login \
     && . ~/.nvm/nvm.sh \
     && nvm use 0 \
+    && git clone https://github.com/fhirbase/fhirface.git \
+    && cd ~/fhirface \
     && npm install \
     && `npm bin`/bower install \
     && PREFIX=~/fhirplace/resources/public/fhirface \
