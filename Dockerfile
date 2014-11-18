@@ -36,6 +36,15 @@ RUN sudo ln -s ~/fhirplace/resources/public/app /app
 RUN sudo apt-get -qqy install nginx
 RUN sudo cp ~/fhirplace/nginx.conf /etc/nginx/sites-available/default
 
+RUN cd ~ \
+    && git clone https://github.com/fhirbase/fhirface.git \
+    && cd ~/fhirface \
+    && nvm use 0 \
+    && npm install \
+    && `npm bin`/bower install \
+    && PREFIX=~/fhirplace/resources/public/fhirface \
+    `npm bin`/grunt build
+
 EXPOSE 80
 
 CMD export FHIRPLACE_WEB_PORT=3000 \
