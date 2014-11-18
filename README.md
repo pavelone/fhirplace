@@ -104,11 +104,15 @@ following command:
 vagrant halt fhirbase fhirplace
 ```
 
-## Accessing FHIRBase
+## Accessing FHIRBase with pgAdmin
 
 You can access FHIRBase directly using any PostgreSQL client like
-`psql` utility or [pgAdmin](http://www.pgadmin.org/). Use following
-connection paremeters:
+command-line `psql` utility or graphical
+[pgAdmin](http://www.pgadmin.org/). This section describes connection
+to FHIRBase with pgAdmin, actions in other clients are similar.
+
+Run pgAdmin and click <kbd>File -> Add server...</kbd> menu. Enter
+following connection paremeters in dialog window:
 
 Parameter | Value
 ----------|----------
@@ -118,6 +122,15 @@ User      | fhirbase
 Password  | fhirbase
 
 ![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-connection.png)
+
+Click "OK" and you will see new server appeared in left sidebar.
+
+![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-new-server.png)
+
+Double-click newly created server to connect to it. When expand
+"Databases" subtree and double-click "fhirbase" database.
+
+![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-fhirbase-db.png)
 
 ## Service
 
