@@ -23,7 +23,7 @@ local machine or server, please follow full
 
 ## Running FHIRPlace's Virtual Machine
 
-### Installing VirtualBox
+### Mac OS X and Windows
 
 If you're running Windows or Mac OS X, you have to install
 [VirtualBox](https://www.virtualbox.org/) virtualization
@@ -31,8 +31,13 @@ software. Installation process is quite straightforward, so we don't
 describe it here. If problems arise, refer to
 [Official Installation Manual](https://www.virtualbox.org/manual/ch02.html).
 
-If you're running some flavor of Linux, you don't have to install
-VirtualBox, just follow to next step.
+### Linux
+
+If you're runnig some flavour of Linux, make sure you have Docker installed:
+
+```bash
+$ docker --version # or docker.io --version
+```
 
 ### Installing Vagrant
 
@@ -58,46 +63,39 @@ you had successfuly installed Vagrant.
 
 ### Getting FHIRPlace source code
 
-You have to have FHIRPlace source code to run FHIRPlace. If you have
+You have to get FHIRPlace source code to run FHIRPlace. If you have
 [Git](http://git-scm.com/) SCM installed, clone FHIRPlace repository
 from GitHub. Alternatively, you can download
 [ZIP archive](https://github.com/fhirbase/fhirplace/archive/master.zip)
 and unpack it somewhere in your file system.
 
-### Starting VM
+### Starting VMs
 
 Open Terminal (or Command Prompt) and navigate to directory where
-FHIRPlace's source code is located:
+FHIRPlace's source code is located, e.g.:
 
 ```bash
 cd ~/work/fhirplace
 ```
 
-Let FRONTEND be absolute path to your frontend project that will use
-fhirplace
-
-```
-sudo docker.io run -d --name=fhirbase -t -p 5432 fhirbase/fhirbase:latest
-sudo docker.io run -d --name=fhirplace -p 3000:3000 -v FRONTEND:/app --link fhirbase:db -t -i fhirbase/fhirplace:latest
-```
-
-### Mac OS X & Windows
+Then start FHIRPlace VMs with command:
 
 ```bash
-vagrant up
+vagrant up fhirbase && vagrant up fhirplace
 ```
 
-### Check
+First VMs startup can take a lot of time because Vagrant have to
+download several OS images (about 1.5 Gb total) and unpack them. Next
+startups will be much faster (almost instant).
 
-curl http://localhost:3000/Patient/_search
+### Stopping VMs
 
-```
+When you finish your work with FHIRPlace, you may decide to stop running
+VMs to free system resources that they have allocated. This can be done with
+following command:
 
-## Usage
-
-```
-Root for you FRONTEND project: http://localhost:3000/app/
-Simple access to fhirplace server: http://localhost:3000/fhirface/
+```bash
+vagrant halt fhirbase fhirplace
 ```
 
 ## Service
