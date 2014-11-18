@@ -117,6 +117,8 @@ Port      | 5433
 User      | fhirbase
 Password  | fhirbase
 
+[!pgAdmin Connection Screenshot](doc/screenshots/pgadmin-connection.png)
+
 ## Service
 
 > All premium services from developers of Fhirbase projects
