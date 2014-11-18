@@ -111,7 +111,7 @@ You can access FHIRBase directly using any PostgreSQL client like
 connection paremeters:
 
 Parameter | Value
-----------+-----------
+----------|----------
 Host      | localhost
 Port      | 5433
 User      | fhirbase
