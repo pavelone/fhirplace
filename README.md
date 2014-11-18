@@ -170,6 +170,12 @@ In "Output" pane you'll see Organization resource we inserted in previous step.
 
 ![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-sql-search-result.png)
 
+Summarizing up, we connected to FHIRBase using pgAdmin and performed
+some queries to test if it's actually works. Please, refer to
+[FHIRBase](https://github.com/fhirbase/fhirbase) and
+[PostgreSQL](http://www.postgresql.org/docs/) Documentation for
+further reading.
+
 ## Service
 
 > All premium services from developers of Fhirbase projects
