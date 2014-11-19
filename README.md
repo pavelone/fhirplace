@@ -11,9 +11,9 @@ FHIRPlace and FHIRBase both are using a lot of third-party software
 like PostgreSQL, Java, Node.js, etc. Installing it by hand is an
 complex task which can take several working days to accomplish.
 
-Fortunatelly, another approach is available nowadays. Instead of
+Fortunately, another approach is available nowadays. Instead of
 installing all required software manually, one can use virtualization
-technologies to run a "virtual machine" with alredy pre-configured
+technologies to run a "virtual machine" with already pre-configured
 operating system.
 
 To quickly get FHIRPlace up and running we advice you to follow
@@ -21,7 +21,7 @@ virtualization path. If you're willing to install FHIRPlace to your
 local machine or server, please follow full
 [Installation Manual](https://github.com/fhirbase/fhirplace/wiki/InstallationManual).
 
-## Running FHIRPlace's Virtual Machine
+## Running FHIRPlace Virtual Machine
 
 ### Mac OS X and Windows
 
@@ -33,14 +33,14 @@ describe it here. If problems arise, refer to
 
 ### Linux
 
-If you're runnig some flavour of Linux, make sure you have Docker installed:
+If you're running some flavor of Linux, make sure you have Docker installed:
 
 ```bash
 $ docker --version # or docker.io --version
 ```
 
 If `docker` binary is not present, install it using your
-distributive's package manager, e.g. `sudo apt-get install docker.io`.
+distributive package manager, e.g. `sudo apt-get install docker.io`.
 
 ### Installing Vagrant
 
@@ -50,19 +50,19 @@ developers use. Navigate to
 [downloads page](https://www.vagrantup.com/downloads.html) to get an
 installer suitable for your OS. After installation is finished, run
 Terminal application (on Mac OS X) or Command Prompt (on Windows) to
-test if installation was successful. Type following command:
+test if installation was successful. Type the following command:
 
 ```bash
 vagrant --version
 ```
 
-If you see output like
+If you see an output like
 
 ```bash
 Vagrant 1.6.5
 ```
 
-you had successfuly installed Vagrant.
+you have successfully installed Vagrant.
 
 ### Getting FHIRPlace source code
 
@@ -97,8 +97,8 @@ http://localhost:3000/ and you'll see FHIRPlace welcome page.
 ### Stopping VMs
 
 When you finish your work with FHIRPlace, you may decide to stop running
-VMs to free system resources that they have allocated. This can be done with
-following command:
+VMs to free system resources that they have allocated. This can be done 
+with the following command:
 
 ```bash
 vagrant halt fhirbase fhirplace
@@ -112,7 +112,7 @@ command-line `psql` utility or graphical
 to FHIRBase with pgAdmin, actions in other clients are similar.
 
 Run pgAdmin and click <kbd>File -> Add server...</kbd> menu. Enter
-following connection paremeters in dialog window:
+the following connection parameters in the dialog window:
 
 Parameter | Value
 ----------|----------
