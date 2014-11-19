@@ -8,7 +8,7 @@ FHIR Server implementation powered by
 ## Installation
 
 FHIRplace and FHIRbase both are using a lot of third-party software
-like PostgreSQL, Java, Node.js, etc. Installing it by hand is an
+like PostgreSQL, Java, Node.js, etc. Installing it by hand is a
 complex task which can take several working days to accomplish.
 
 Fortunately, another approach is available nowadays. Instead of
