@@ -47,6 +47,8 @@ RUN cd ~ \
     && `npm bin`/grunt build \
     && mv ~/fhirface/dist ~/fhirplace/resources/public/fhirface
 
+RUN touch ~/proof
+
 EXPOSE 80
 
 CMD export FHIRPLACE_WEB_PORT=3000 \
