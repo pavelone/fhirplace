@@ -24,30 +24,30 @@ RUN cd ~/dotfiles && bash install.sh
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.16.0/install.sh | bash
 RUN bash -lc 'source ~/.nvm/nvm.sh && nvm install 0.10'
 
+RUN export NVM_DIR=$HOME/.nvm \
+    && . ~/.nvm/nvm.sh \
+    && nvm use 0 \
+    && cd ~ \
+    && git clone https://github.com/fhirbase/fhirface.git \
+    && cd ~/fhirface \
+    && npm install \
+    && `npm bin`/bower install \
+    && `npm bin`/grunt build
+
+RUN sudo apt-get -qqy install nginx
+
+# All commands will rebuild each time above this line.
+
 COPY . /home/fhir/fhirplace
+RUN sudo cp ~/fhirplace/nginx.conf /etc/nginx/sites-available/default
 RUN sudo chown -R fhir:fhir /home/fhir/fhirplace
+RUN mv ~/fhirface/dist ~/fhirplace/resources/public/fhirface
 RUN cd ~/fhirplace && git submodule init && git submodule update
 RUN cd ~/fhirplace && lein deps
 RUN cd ~/fhirplace && lein javac
 RUN cd ~/fhirplace && cp dev/production.clj dev/user.clj
 RUN mkdir -p ~/fhirplace/resources/public/app
 RUN sudo ln -s ~/fhirplace/resources/public/app /app
-
-RUN sudo apt-get -qqy install nginx
-RUN sudo cp ~/fhirplace/nginx.conf /etc/nginx/sites-available/default
-
-RUN cd ~ \
-    && exec /bin/bash --login \
-    && . ~/.nvm/nvm.sh \
-    && nvm use 0 \
-    && git clone https://github.com/fhirbase/fhirface.git \
-    && cd ~/fhirface \
-    && npm install \
-    && `npm bin`/bower install \
-    && `npm bin`/grunt build \
-    && mv ~/fhirface/dist ~/fhirplace/resources/public/fhirface
-
-RUN touch ~/proof
 
 EXPOSE 80
 
