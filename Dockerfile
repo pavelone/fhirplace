@@ -44,8 +44,8 @@ RUN cd ~ \
     && cd ~/fhirface \
     && npm install \
     && `npm bin`/bower install \
-    && PREFIX=~/fhirplace/resources/public/fhirface \
-    `npm bin`/grunt build
+    && `npm bin`/grunt build \
+    && mv ~/fhirface/dist ~/fhirplace/resources/public/fhirface
 
 EXPOSE 80
 
