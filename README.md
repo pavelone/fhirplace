@@ -27,7 +27,7 @@ local machine or server, please follow full
 
 If you're running Windows or Mac OS X, you have to install
 [VirtualBox](https://www.virtualbox.org/) virtualization
-software. Installation process is quite straightforward, so we don't
+software. Installation process is quite straightforward, so we won't
 describe it here. If problems arise, refer to
 [Official Installation Manual](https://www.virtualbox.org/manual/ch02.html).
 
