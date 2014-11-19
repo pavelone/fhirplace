@@ -1,13 +1,13 @@
-# fhirplace
+# FHIRplace
 
-[![Build Status](https://travis-ci.org/fhirbase/fhirplace.svg)](https://travis-ci.org/fhirbase/fhirplace)
+[![Build Status](https://travis-ci.org/fhirbase/fhirplace.svg)](https://travis-ci.org/fhirbase/FHIRplace)
 
 FHIR Server implementation powered by
 [FHIRBase](https://github.com/fhirbase/fhirbase).
 
 ## Installation
 
-FHIRPlace and FHIRBase both are using a lot of third-party software
+FHIRplace and FHIRbase both are using a lot of third-party software
 like PostgreSQL, Java, Node.js, etc. Installing it by hand is an
 complex task which can take several working days to accomplish.
 
@@ -16,12 +16,12 @@ installing all required software manually, one can use virtualization
 technologies to run a "virtual machine" with already pre-configured
 operating system.
 
-To quickly get FHIRPlace up and running we advice you to follow
-virtualization path. If you're willing to install FHIRPlace to your
+To quickly get FHIRplace up and running we advice you to follow
+virtualization path. If you're willing to install FHIRplace to your
 local machine or server, please follow full
 [Installation Manual](https://github.com/fhirbase/fhirplace/wiki/InstallationManual).
 
-## Running FHIRPlace Virtual Machine
+## Running FHIRplace Virtual Machine
 
 ### Mac OS X and Windows
 
@@ -64,10 +64,10 @@ Vagrant 1.6.5
 
 you have successfully installed Vagrant.
 
-### Getting FHIRPlace source code
+### Getting FHIRplace source code
 
-You have to get FHIRPlace source code to run FHIRPlace. If you have
-[Git](http://git-scm.com/) SCM installed, clone FHIRPlace repository
+You have to get FHIRplace source code to run FHIRplace. If you have
+[Git](http://git-scm.com/) SCM installed, clone FHIRplace repository
 from GitHub. Alternatively, you can download
 [ZIP archive](https://github.com/fhirbase/fhirplace/archive/master.zip)
 and unpack it somewhere in your file system.
@@ -75,13 +75,13 @@ and unpack it somewhere in your file system.
 ### Starting VMs
 
 Open Terminal (or Command Prompt) and navigate to directory where
-FHIRPlace's source code is located, e.g.:
+FHIRplace source code is located, e.g.:
 
 ```bash
 cd ~/work/fhirplace
 ```
 
-Then start FHIRPlace VMs with command:
+Then start FHIRplace VMs with command:
 
 ```bash
 vagrant up fhirbase && vagrant up fhirplace
@@ -92,11 +92,11 @@ download several OS images (about 1.5 Gb total) and unpack them. Next
 startups will be much faster (almost instant).
 
 If Vagrant won't report any errors, direct your browser to
-http://localhost:3000/ and you'll see FHIRPlace welcome page.
+http://localhost:3000/ and you'll see FHIRplace welcome page.
 
 ### Stopping VMs
 
-When you finish your work with FHIRPlace, you may decide to stop running
+When you finish your work with FHIRplace, you may decide to stop running
 VMs to free system resources that they have allocated. This can be done 
 with the following command:
 
@@ -104,12 +104,12 @@ with the following command:
 vagrant halt fhirbase fhirplace
 ```
 
-## Accessing FHIRBase with pgAdmin
+## Accessing FHIRbase with pgAdmin
 
-You can access FHIRBase directly using any PostgreSQL client like
+You can access FHIRbase directly using any PostgreSQL client like
 command-line `psql` utility or graphical
 [pgAdmin](http://www.pgadmin.org/). This section describes connection
-to FHIRBase with pgAdmin, actions in other clients are similar.
+to FHIRbase with pgAdmin, actions in other clients are similar.
 
 Run pgAdmin and click <kbd>File -> Add server...</kbd> menu. Enter
 the following connection parameters in the dialog window:
@@ -170,15 +170,15 @@ In "Output" pane you'll see Organization resource we inserted in previous step.
 
 ![pgAdmin Connection Screenshot](doc/screenshots/pgadmin-sql-search-result.png)
 
-Summarizing up, we connected to FHIRBase using pgAdmin and performed
+Summarizing up, we connected to FHIRbase using pgAdmin and performed
 some queries to test if it's actually works. Please, refer to
-[FHIRBase](https://github.com/fhirbase/fhirbase) and
+[FHIRbase](https://github.com/fhirbase/fhirbase) and
 [PostgreSQL](http://www.postgresql.org/docs/) Documentation for
 further reading.
 
 ## Service
 
-> All premium services from developers of Fhirbase projects
+> All premium services from developers of FHIRbase projects
 > should be requested from Choice Hospital Systems (http://Choice-HS.com)
 
 ## License
