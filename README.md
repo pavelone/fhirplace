@@ -84,7 +84,7 @@ cd ~/work/fhirplace
 Then start FHIRplace VMs with command:
 
 ```bash
-vagrant up fhirbase && vagrant up fhirplace
+vagrant up fhirbase --provider=docker && vagrant up fhirplace --provider=docker
 ```
 
 Initial VMs startup can take a lot of time because Vagrant have to
