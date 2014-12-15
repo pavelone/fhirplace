@@ -16,7 +16,7 @@
 
   :ring {:handler fhirplace.core/app}
 
-  :dependencies [[org.clojure/clojure "1.5.1"]
+  :dependencies [[org.clojure/clojure "1.6.0"]
 
                  [org.clojure/data.json "0.2.4"]
                  [org.clojure/data.zip "0.1.1"]

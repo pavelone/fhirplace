@@ -45,7 +45,7 @@
 
 (defn q* [sql]
   (println "SQL:" (pr-str sql))
-  (cjj/query *db* sql))
+  (time (cjj/query *db* sql)))
 
 (defn call* [proc & args]
   (let [proc-name (name proc)
