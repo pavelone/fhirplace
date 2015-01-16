@@ -50,4 +50,6 @@
                                   [midje "1.6.0"]
                                   [leiningen "2.3.4"]
                                   [org.clojure/java.classpath "0.2.0"]]
-                   :plugins [[lein-kibit "0.0.8"]] }})
+                   :plugins [[lein-kibit "0.0.8"]] }}
+
+  :main fhirplace.main)
