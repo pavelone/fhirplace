@@ -13,6 +13,7 @@ pom.xml.asc
 *sw?
 **/.#*
 **/#*#
+npm-debug.log
 
 # JavaScript Single Page Application.
 gui/.sass-cache
