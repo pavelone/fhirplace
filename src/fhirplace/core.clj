@@ -15,11 +15,20 @@
   [h mws]
   ((apply comp mws) h))
 
-(defn base-url [{:keys [scheme server-name server-port]}]
-  (str (name scheme) "://"
-       server-name
-       (if (= server-port 80)
-         "" (str ":" server-port))))
+(defn base-url [{{header-host :host} :headers
+                 :keys [scheme server-name server-port]}]
+  (let [header-hostname (when header-host
+                          (re-find #"^[^:/]+" header-host))
+
+        hostname (or header-hostname server-name)
+
+        port (if header-hostname
+               (re-find #"(?<=:)[0-9]+" header-host)
+               server-port)]
+
+    (format "%s://%s%s"
+            (name scheme) hostname (if (or (not port) (= port 80))
+                                     "" (str ":" port)))))
 
 (defn wrap-cfg
   "wrap with config; extract base url from request"
