@@ -7,12 +7,13 @@
 
   :plugins [[com.jakemccrary/lein-test-refresh "0.5.2"] ]
 
-  :source-paths  ["lib/route-map/test"
-                  "lib/route-map/src"
+  :source-paths  ["lib/route-map/src"
+                  "lib/route-map/test"
+                  "lib/fhir.clj/src"
+                  "lib/fhir.clj/test"
                   "src"]
 
   :resource-paths    ["resources"]
-  :java-source-paths ["java"]
 
   :ring {:handler fhirplace.core/app}
 
@@ -36,13 +37,21 @@
                  [clj-time "0.6.0"]
                  [cheshire "5.3.1"]
                  [clj-http "0.9.2"]
-                 [instaparse "1.3.2"] ;; parse params
-                 [commons-codec "1.3"]
-                 [com.google.code.gson/gson "2.2.4"]
-                 [xpp3 "1.1.3.4.O"]
+                 ; [instaparse "1.3.2"] ;; parse params
+                 ; [commons-codec "1.3"]
+                 ; [com.github.rjeschke/txtmark "0.11"]
+
                  ;;[org.clojure/core.match  "0.2.1"]
                  [environ  "0.5.0"]
                  [hiccup "1.0.5"]
+
+                 ; [me.fhir/fhir-dstu2 "0.4.0.3925"]
+                 ; [org.apache.httpcomponents/httpcore "4.2.2"]
+                 ; [org.apache.httpcomponents/httpclient "4.2.3"]
+                 ; [org.apache.commons/commons-lang3 "3.1"]
+
+                 ; [com.google.code.gson/gson "2.3"]
+                 ; [xpp3 "1.1.4c"]
                  ]
 
   :profiles {:dev {:source-paths ["dev"]

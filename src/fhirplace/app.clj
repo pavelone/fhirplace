@@ -1,13 +1,13 @@
 (ns fhirplace.app
   (:require [ring.util.response :as rur]
             [clojure.string :as cs]
-            [fhir :as f]
+            [fhirplace.fhir :as ff]
             [fhirplace.pg :as fp]
             [fhirplace.plugins :as fpl]
             [fhirplace.category :as fc]
             [fhirplace.views :as fv]
             [hiccup.core :as hc]
-            [fhir.operation-outcome :as fo]
+            ; [fhir.operation-outcome :as fo]
             [clojure.stacktrace :as cst]
             [clojure.data.json :as json]))
 
@@ -57,7 +57,7 @@
   (let [status (get outcomes error-key)
         issues (or issues [{:severity "fatal" :details text}])]
     {:status status
-     :body (fo/operation-outcome
+     :body (ff/operation-outcome
              {:text {:status "generated"
                      :div (str "<div>" text "</div>")}
               :issue issues})}))
@@ -86,7 +86,7 @@
 
 (defn- safe-parse [x]
   (try
-    [:ok (f/parse x)]
+    [:ok (ff/parse x)]
     (catch Exception e
       [:error (str "Resource could not be parsed: \n" x "\n" e)])))
 
@@ -101,7 +101,7 @@
 ;"validate :data key for errors"
 (defmw ->valid-input! h
   [{res :data :as req}]
-  (let [errors (f/errors res)]
+  (let [errors (ff/validate res)]
     (if (empty? errors)
       (h (assoc req :data res))
       (outcome :resource-not-valid
@@ -142,13 +142,13 @@
   {:body bd})
 
 (defn =metadata [{cfg :cfg :as req}]
-  (-> (fp/call* :fhir_conformance (cfg-str cfg))
-      f/parse
+  (-> (fp/call* :conformance.conformance (cfg-str cfg))
+      ff/parse
       rur/response))
 
 (defn =profile [{{tp :type} :params cfg :cfg}]
-  (-> (fp/call* :fhir_profile (cfg-str cfg) tp)
-      f/parse
+  (-> (fp/call* :conformance.profile (cfg-str cfg) tp)
+      ff/parse
       rur/response))
 
 (defn =html-face [req]
@@ -158,8 +158,8 @@
       (rur/status 200)))
 
 (defn =search [{{tp :type} :params cfg :cfg q :query-string}]
-  (-> (fp/call* :fhir_search (cfg-str cfg) tp (or q ""))
-      f/parse
+  (-> (fp/call* :search.fhir_search (cfg-str cfg) tp (or q ""))
+      ff/parse
       rur/response))
 
 (defn =tags-all [{cfg :cfg}]
@@ -200,17 +200,17 @@
 
 (defn =history [{{tp :type id :id} :params cfg :cfg}]
   (-> (fp/call* :fhir_history (cfg-str cfg) tp id "{}")
-      f/parse
+      ff/parse
       rur/response))
 
 (defn =history-type [{{tp :type} :params cfg :cfg}]
   (-> (fp/call* :fhir_history (cfg-str cfg) tp "{}")
-      f/parse
+      ff/parse
       rur/response))
 
 (defn =history-all [{cfg :cfg}]
   (-> (fp/call* :fhir_history (cfg-str cfg) "{}")
-      f/parse
+      ff/parse
       rur/response))
 
 (defn resource-resp [res]
@@ -219,7 +219,7 @@
         loc (:href (first (:link entry)))
         tags (:category entry)
         last-modified (:updated entry)
-        fhir-res (f/parse (json/write-str (:content entry)))]
+        fhir-res (ff/parse (json/write-str (:content entry)))]
 
     (-> {:body fhir-res}
         (rur/header "Location" loc)
@@ -231,7 +231,7 @@
   [{{rt :type} :params res :data tags :tags cfg :cfg :as req}]
   {:pre [(not (nil? res))]}
   (println "=create " (keys req))
-  (let [json (f/serialize :json res)
+  (let [json (ff/generate :json res)
         jtags (json/write-str tags)
         resource-type (str (.getResourceType res))]
     (if (= rt resource-type)
@@ -244,7 +244,7 @@
 (defn =update
   [{{rt :type id :id} :params res :data tags :tags cfg :cfg :as req}]
   {:pre [(not (nil? res))]}
-  (let [json (f/serialize :json res)
+  (let [json (ff/generate :json res)
         jtags (json/write-str tags)
         resource-type (str (.getResourceType res))]
     (if (= rt resource-type)
@@ -256,7 +256,7 @@
 
 (defn- validate-resource-type
   [cfg rt res]
-  (let [json (f/serialize :json res)
+  (let [json (ff/generate :json res)
         resource-type (str (.getResourceType res))]
     (if (= rt resource-type)
       {:status 200}
@@ -291,10 +291,10 @@
 
 (defn =transaction
   [{bd :body cfg :cfg :as req}]
-  (let [bundle (f/parse (slurp bd))
-        json (f/serialize :json bundle)]
+  (let [bundle (ff/parse (slurp bd))
+        json (ff/generate :json bundle)]
     (-> (fp/call* :fhir_transaction (cfg-str cfg) json)
-        (f/parse)
+        (ff/parse)
         (rur/response))))
 ;; api
 

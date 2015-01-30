@@ -60,3 +60,6 @@
   (jetty/run-jetty #'app {:port (Integer. (env/env :fhirplace-web-port)) :join? false}))
 
 (defn stop-server [server] (.stop server))
+
+(comment
+  (def srv (start-server)))

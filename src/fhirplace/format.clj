@@ -1,6 +1,6 @@
 (ns fhirplace.format
   (:require
-    [fhir :as f]
+    [fhirplace.fhir :as ff]
     [clojure.string :as cs]))
 
 (defn mime
@@ -18,8 +18,7 @@
    "application/xml+fhir" :xml})
 
 (def response-formats
-  {:atom "application/atom+xml"
-   :xml "application/xml+fhir"
+  {:xml "application/xml+fhir"
    :json "application/json+fhir" })
 
 
@@ -35,8 +34,7 @@
 
 (defn content-type-format
   [fmt bd]
-  (-> (or (and (f/atom? bd) (= :xml fmt) (:atom response-formats))
-          (get response-formats fmt))
+  (-> (or (get response-formats fmt) (get response-formats :json))
       (str "; charset=UTF-8")))
 
 (defn response-content-type
@@ -53,7 +51,7 @@
   (fn [req]
     (let [fmt (get-format req)
           {bd :body :as resp} (h req)
-          bd (if (f/serializable? bd)(f/serialize fmt bd) bd)]
+          bd (if (ff/serializable? bd)(ff/generate fmt bd) bd)]
       #_(println "Formating " fmt ": " bd "")
       (-> (assoc resp :body bd)
           (response-content-type fmt bd)))))
