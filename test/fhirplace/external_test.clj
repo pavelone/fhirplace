@@ -1,6 +1,5 @@
 (ns fhirplace.external-test
   (:require [fhirplace.core :as fc]
-            [fhir :as f]
             [clojure.test :refer :all]
             [plumbing.core :refer [fnk]]
             [plumbing.graph :as pg]
