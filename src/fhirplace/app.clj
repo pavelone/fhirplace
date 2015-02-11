@@ -115,18 +115,15 @@
     (h req)))
 
 ;; TODO: fixme
-(defn- check-latest-version [cfg cl]
-  (println "check-latest-version " cl)
-  (let [[_ cl-] (cs/split cl (re-pattern (:base cfg)))]
-    (let [[_ tp id _ vid] (cs/split cl- #"/")]
-      (println "check-latest " tp " " id " " vid)
-      (fp/call* :crud.is_latest (cfg-str cfg) tp id vid) )))
+(defn- check-latest-version [cfg id tp vid]
+  (println "check-latest " tp " " id " " vid)
+  (fp/call* :crud.is_latest (cfg-str cfg) tp id vid)    )
 
 (defmw ->latest-version! h
-  [{{cl "content-location"} :headers cfg :cfg :as req}]
+  [{{tp :type id :id} :params res :data cfg :cfg :as req}]
   (cond
-    (not cl) (outcome :no-version-info "Provide 'Content-Location' header for update resource")
-    (not (check-latest-version cfg cl)) (outcome :not-last-version "Updating not last version of resource")
+    (not (get-in res [:meta :versionId])) (outcome :no-version-info "Provide 'Content-Location' header for update resource")
+    (not (check-latest-version cfg id tp (get-in res [:meta :versionId]))) (outcome :not-last-version "Updating not last version of resource")
     :else (h req)))
 
 (defmw ->check-tags h
@@ -199,17 +196,17 @@
       rur/response))
 
 (defn =history [{{tp :type id :id} :params cfg :cfg}]
-  (-> (fp/call* :crud.history (cfg-str cfg) tp id "{}")
+  (-> (fp/call* :crud.history (cfg-str cfg) tp id)
       ff/parse
       rur/response))
 
 (defn =history-type [{{tp :type} :params cfg :cfg}]
-  (-> (fp/call* :crud.history (cfg-str cfg) tp "{}")
+  (-> (fp/call* :crud.history (cfg-str cfg) tp)
       ff/parse
       rur/response))
 
 (defn =history-all [{cfg :cfg}]
-  (-> (fp/call* :crud.history (cfg-str cfg) "{}")
+  (-> (fp/call* :crud.history (cfg-str cfg))
       ff/parse
       rur/response))
 
@@ -236,10 +233,9 @@
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
 
 (defn =update
-  [{{rt :type id :id} :params res :data tags :tags cfg :cfg :as req}]
+  [{{rt :type id :id} :params res :data cfg :cfg :as req}]
   {:pre [(not (nil? res))]}
   (let [json (ff/generate :json res)
-        jtags (json/write-str tags)
         resource-type (:resourceType res)]
     (if (= rt resource-type)
       (let [cl (get-in req [:headers "content-location"])
