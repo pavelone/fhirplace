@@ -28,13 +28,13 @@
                  [org.clojure/java.jdbc "0.3.3"]
                  [org.postgresql/postgresql "9.3-1101-jdbc41"]
 
-                 [prismatic/plumbing "0.2.2"]
-                 [prismatic/schema "0.2.2"]
+                 ;;[prismatic/plumbing "0.2.2"]
+                 ;;[prismatic/schema "0.2.2"]
                  [ring-mock "0.1.5"]
                  [compojure "1.1.6"]
                  ;;[org.clojure/algo.monads "0.1.5"]
                  [ring "1.2.1"]
-                 [clj-time "0.6.0"]
+                 ;;[clj-time "0.6.0"]
                  [cheshire "5.3.1"]
                  [clj-http "0.9.2"]
                  ; [instaparse "1.3.2"] ;; parse params

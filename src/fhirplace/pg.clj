@@ -11,11 +11,13 @@
 (import 'java.sql.Timestamp)
 
 (def ^:dynamic *db*
-  {:subprotocol (env/env :fhirplace-subprotocol)
+  {:subprotocol "postgresql"
    :subname (env/env :fhirplace-subname)
-   :user (env/env :fhirplace-user)
+   :user (or (env/env :fhirplace-user) "fhirbase")
    :stringtype "unspecified"
-   :password (env/env :fhirplace-password)})
+   :password (or (env/env :fhirplace-password) "fhirbase")})
+
+(println (str  "Database: " *db*))
 
 (defmacro with-db  [db & body]
   `(binding  [*db* ~db]
