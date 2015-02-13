@@ -21,41 +21,25 @@ RUN sudo apt-get install -qq -y tmux zsh
 RUN cd ~/ && git clone https://github.com/niquola/dotfiles
 RUN cd ~/dotfiles && bash install.sh
 
-RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.16.0/install.sh | bash
-RUN bash -lc 'source ~/.nvm/nvm.sh && nvm install 0.10'
-
-RUN export NVM_DIR=$HOME/.nvm \
-    && . ~/.nvm/nvm.sh \
-    && nvm use 0 \
-    && cd ~ \
-    && git clone https://github.com/fhirbase/fhirface.git \
-    && cd ~/fhirface \
-    && npm install \
-    && `npm bin`/bower install \
-    && `npm bin`/grunt build
-
-RUN sudo apt-get -qqy install nginx
-
 # All commands will rebuild each time above this line.
 
-COPY . /home/fhir/fhirplace
-RUN sudo cp ~/fhirplace/nginx.conf /etc/nginx/sites-available/default
+ADD . /home/fhir/fhirplace
 RUN sudo chown -R fhir:fhir /home/fhir/fhirplace
-RUN mv ~/fhirface/dist ~/fhirplace/resources/public/fhirface
-RUN cd ~/fhirplace && git submodule init && git submodule update
-RUN cd ~/fhirplace && lein deps
-RUN cd ~/fhirplace && lein javac
+RUN cd /home/fhir/fhirplace && rm -rf .git && git init && git submodule init && git submodule update
+RUN cd /home/fhir/fhirplace && lein deps
 RUN cd ~/fhirplace && cp dev/production.clj dev/user.clj
-RUN mkdir -p ~/fhirplace/resources/public/app
-RUN sudo ln -s ~/fhirplace/resources/public/app /app
+RUN mkdir -p /home/fhir/fhirplace/resources/public/app
+RUN sudo ln -s /home/fhir/fhirplace/resources/public/app /app
 
-EXPOSE 80
+EXPOSE 8080
 
-CMD export FHIRPLACE_WEB_PORT=3000 \
-    FHIRPLACE_SUBPROTOCOL="postgresql" \
-    FHIRPLACE_SUBNAME="//$DB_PORT_5432_TCP_ADDR:$DB_PORT_5432_TCP_PORT/fhirbase" \
-    FHIRPLACE_USER="fhirbase" \
-    FHIRPLACE_PASSWORD="fhirbase" ; \
-    sudo service nginx restart \
+ENV FHIRPLACE_WEB_PORT  8080
+ENV FHIRPLACE_SUBPROTOCOL postgres
+ENV FHIRPLACE_DBHOST  fhirbase.io
+ENV FHIRPLACE_DATABASE  fhirbase
+ENV FHIRPLACE_USER fhirbase
+ENV FHIRPLACE_PASSWORD fhirbase
+
+CMD export FHIRPLACE_SUBNAME="//$FHIRPLACE_DBHOST/$FHIRPLACE_DATABASE" \
     && cd ~/fhirplace \
     && lein repl

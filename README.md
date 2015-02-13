@@ -5,7 +5,23 @@
 FHIR Server implementation powered by
 [FHIRBase](https://github.com/fhirbase/fhirbase).
 
+
 ## Installation
+
+### Using Docker
+
+```
+docker run --name=fhirbase -d fhirbase/fhirbase
+docker inspect fhirbase
+# find ip address
+docker run --name=fhirplace -e 'FHIRPLACE_DBHOST=<fhirbase-ip>:5432' -t fhirbase/fhirplace
+docker inspect fhirplace
+# find fhirplace ip address
+curl <fhirplace-ip>/metadata
+```
+
+
+###
 
 FHIRplace and FHIRbase both are using a lot of third-party software
 like PostgreSQL, Java, Node.js, etc. Installing it by hand is a
@@ -97,7 +113,7 @@ http://localhost:3000/ and you'll see FHIRplace welcome page.
 ### Stopping VMs
 
 When you finish your work with FHIRplace, you may decide to stop running
-VMs to free system resources that they have allocated. This can be done 
+VMs to free system resources that they have allocated. This can be done
 with the following command:
 
 ```bash

@@ -1,3 +1,6 @@
 [submodule "lib/route-map"]
 	path = lib/route-map
 	url = ../../niquola/route-map.git
+[submodule "lib/fhir.clj"]
+	path = lib/fhir.clj
+	url = https://github.com/fhirbase/fhir.clj.git

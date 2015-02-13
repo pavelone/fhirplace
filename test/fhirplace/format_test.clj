@@ -3,8 +3,6 @@
     [clojure.test :refer :all]
     [fhirplace.format :as fi]))
 
-(import 'org.hl7.fhir.instance.model.AtomFeed)
-
 (defn match-format? [req fmt]
   (is (= (fi/get-format req) fmt)))
 
@@ -30,8 +28,7 @@
 
 (deftest content-type-format-test
   (is (= (fi/content-type-format :xml "str") "application/xml+fhir; charset=UTF-8"))
-  (is (= (fi/content-type-format :json "str") "application/json+fhir; charset=UTF-8"))
-  (is (= (fi/content-type-format :xml (new AtomFeed)) "application/atom+xml; charset=UTF-8")))
+  (is (= (fi/content-type-format :json "str") "application/json+fhir; charset=UTF-8")))
 
 (def <-format (fi/<-format identity))
 

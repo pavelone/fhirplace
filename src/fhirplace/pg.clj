@@ -3,7 +3,7 @@
             [honeysql.core :as hc]
             [clojure.data.json :as json]
             [clojure.string :as cs]
-            [fhir :as f]
+            [fhirplace.fhir :as ff]
             [honeysql.helpers :as hh]
             [environ.core :as env]))
 
@@ -11,11 +11,13 @@
 (import 'java.sql.Timestamp)
 
 (def ^:dynamic *db*
-  {:subprotocol (env/env :fhirplace-subprotocol)
+  {:subprotocol "postgresql"
    :subname (env/env :fhirplace-subname)
-   :user (env/env :fhirplace-user)
+   :user (or (env/env :fhirplace-user) "fhirbase")
    :stringtype "unspecified"
-   :password (env/env :fhirplace-password)})
+   :password (or (env/env :fhirplace-password) "fhirbase")})
+
+(println (str  "Database: " *db*))
 
 (defmacro with-db  [db & body]
   `(binding  [*db* ~db]
@@ -50,8 +52,8 @@
 (defn call* [proc & args]
   (let [proc-name (name proc)
         params (cs/join "," (map (constantly "?") args))
-        sql (str "SELECT " proc-name "(" params ")")]
-    (get (first (q* (into [sql] args))) proc)))
+        sql (str "SELECT " proc-name "(" params ") as res")]
+    (get (first (q* (into [sql] args))) :res)))
 
 (defn qcall* [proc & args]
   (let [proc-name (name proc)
@@ -75,3 +77,7 @@
 (defn i [tbl attrs]
   (first
     (cjj/insert! *db* tbl attrs)))
+
+(comment
+  (println *db*)
+  )

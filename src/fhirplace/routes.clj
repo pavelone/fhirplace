@@ -80,5 +80,5 @@
    "metadata" {:GET (h #'=metadata)}
    "_tags"    {:GET (h #'=tags-all)}
    "_history" {:GET (h #'=history-all)}
-   "Profile"  {[:type] {:GET (h #'=profile)}}
+   ; "Profile"  {[:type] {:GET (h #'=profile)}}
    [:type]    type-level-routes})
