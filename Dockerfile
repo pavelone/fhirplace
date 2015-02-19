@@ -17,19 +17,12 @@ RUN cd /home/fhir && mkdir -p /home/fhir/bin && curl https://raw.githubuserconte
 RUN /home/fhir/bin/lein
 env PATH /home/fhir/bin:$PATH
 
-RUN sudo apt-get install -qq -y tmux zsh
-RUN cd ~/ && git clone https://github.com/niquola/dotfiles
-RUN cd ~/dotfiles && bash install.sh
-
 # All commands will rebuild each time above this line.
 
 ADD . /home/fhir/fhirplace
 RUN sudo chown -R fhir:fhir /home/fhir/fhirplace
 RUN cd /home/fhir/fhirplace && rm -rf .git && git init && git submodule init && git submodule update
 RUN cd /home/fhir/fhirplace && lein deps
-RUN cd ~/fhirplace && cp dev/production.clj dev/user.clj
-RUN mkdir -p /home/fhir/fhirplace/resources/public/app
-RUN sudo ln -s /home/fhir/fhirplace/resources/public/app /app
 
 EXPOSE 8080
 
@@ -42,4 +35,4 @@ ENV FHIRPLACE_PASSWORD fhirbase
 
 CMD export FHIRPLACE_SUBNAME="//$FHIRPLACE_DBHOST/$FHIRPLACE_DATABASE" \
     && cd ~/fhirplace \
-    && lein repl
+    && lein run
