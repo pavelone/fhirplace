@@ -12,9 +12,10 @@
                   "lib/fhir.clj/src"
                   "lib/fhir.clj/test"
                   "src"]
-  :ring {:handler fhirplace.core/app}
 
   :resource-paths    ["resources"]
+
+  :ring {:handler fhirplace.core/app}
 
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/data.json "0.2.4"]

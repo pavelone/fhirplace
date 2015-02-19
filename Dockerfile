@@ -19,6 +19,11 @@ env PATH /home/fhir/bin:$PATH
 
 # All commands will rebuild each time above this line.
 
+RUN cd ~/ && lein new deps
+# hack to cache deps
+ADD ./depsproject.clj /home/fhir/deps/project.clj
+RUN cd ~/deps && lein deps
+
 ADD . /home/fhir/fhirplace
 RUN sudo chown -R fhir:fhir /home/fhir/fhirplace
 RUN cd /home/fhir/fhirplace && rm -rf .git && git init && git submodule init && git submodule update
