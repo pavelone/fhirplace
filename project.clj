@@ -28,7 +28,6 @@
                  [compojure "1.1.6"]
                  [ring "1.2.1"]
                  [cheshire "5.4.0"]
-                 [clj-http "0.9.2"]
                  [environ  "0.5.0"]
                  [hiccup "1.0.5"]]
 
