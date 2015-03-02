@@ -61,6 +61,15 @@
                      :div (str "<div>" text "</div>")}
               :issue issues})}))
 
+(defn content-location [res]
+  (str
+    "/"
+    (get-in res [:resourceType])
+    "/"
+    (get-in res [:id])
+    "/_history/"
+    (get-in res [:meta :versionId])))
+
 (defmw <-outcome-on-exception h [req]
   (try (h req)
        (catch Exception e
@@ -160,10 +169,11 @@
       ff/parse
       rur/response))
 
+
 (defn resource-resp [res]
   (let [res (ff/parse res)]
     (-> {:body res}
-        (rur/header "Content-Location" (get-in res [:meta :versionId]))
+        (rur/header "Location" (content-location res))
         (rur/header "Last-Modified" (get-in res [:meta :lastUpdated])))))
 
 ;; TODO: start here
@@ -260,5 +270,4 @@
        :body (pr-str res)})))
 (comment
   (print cfg)
-  (fp/call* :fhir.fhir_search (cfg-str {}) "Patient" "")
-  )
+  (fp/call* :fhir.search (cfg-str {}) "Patient" ""))
