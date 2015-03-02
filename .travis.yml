@@ -1,9 +1,16 @@
 language: clojure
+addons:
+  postgresql: "9.4"
+
 lein: lein2
 script: lein2 do clean, javac, test
+
+before_script:
+  - psql -U postgres -c "create user fhirbase with password 'fhirbase';"
+  - psql -c 'create database fhirbase owner fhirbase;' -U postgres
+  - curl https://raw.githubusercontent.com/fhirbase/fhirbase-build/master/fhirbase.sql | psql -d fhirbase -U postgres
+
 jdk:
-  - openjdk7
   - oraclejdk7
-  - oraclejdk8
-services:
-  - postgresql
+  #- openjdk7
+  #- oraclejdk8

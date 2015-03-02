@@ -166,10 +166,10 @@
         (rur/header "Content-Location" (get-in res [:meta :versionId]))
         (rur/header "Last-Modified" (get-in res [:meta :lastUpdated])))))
 
+;; TODO: start here
 (defn =create
   [{{rt :type} :params res :data cfg :cfg :as req}]
   {:pre [(not (nil? res))]}
-  (println "=create " (keys req))
   (let [json (ff/generate :json res)
         resource-type (:resourceType res)]
     (if (= rt resource-type)

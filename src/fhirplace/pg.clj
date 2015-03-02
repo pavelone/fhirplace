@@ -12,17 +12,10 @@
 
 (def ^:dynamic *db*
   {:subprotocol "postgresql"
-   :subname (env/env :fhirplace-subname)
+   :subname (or (env/env :fhirplace-subname) "//localhost:5432/fhirbase")
    :user (or (env/env :fhirplace-user) "fhirbase")
    :stringtype "unspecified"
    :password (or (env/env :fhirplace-password) "fhirbase")})
-
-(def ^:dynamic *db*
-  {:subprotocol "postgresql"
-   :subname "//localhost:5777/test"
-   :user "fhirbase"
-   :stringtype "unspecified"
-   :password "fhirbase"})
 
 (println (str  "Database: " *db*))
 
