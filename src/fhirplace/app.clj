@@ -4,7 +4,6 @@
             [fhirplace.fhir :as ff]
             [fhirplace.pg :as fp]
             [fhirplace.plugins :as fpl]
-            [fhirplace.category :as fc]
             [fhirplace.views :as fv]
             [hiccup.core :as hc]
             ; [fhir.operation-outcome :as fo]
@@ -69,7 +68,6 @@
          (outcome :server-error
                   (str "Unexpected server error " (hc/h (get-stack-trace e)))))))
 
-
 (defmw ->type-supported! h
   [{{tp :type} :params :as req}]
   (if tp
@@ -126,91 +124,41 @@
     (not (check-latest-version cfg id tp (get-in res [:meta :versionId]))) (outcome :not-last-version "Updating not last version of resource")
     :else (h req)))
 
-(defmw ->check-tags h
-  [{tags :tags :as req}]
-  (if (seq tags)
-    (h req)
-    (outcome :no-tags "Expected not empty tags (i.e. Category header)")))
-
-
 ;; ACTIONS
 
 (defn respond [bd]
   {:body bd})
 
 (defn =metadata [{cfg :cfg :as req}]
-  (-> (fp/call* :conformance.conformance (cfg-str cfg))
-      ff/parse
-      rur/response))
-
-(defn =profile [{{tp :type} :params cfg :cfg}]
-  (-> (fp/call* :conformance.profile (cfg-str cfg) tp)
+  (-> (fp/call* :fhir.conformance (cfg-str cfg))
       ff/parse
       rur/response))
 
 (defn =html-face [req]
-  (-> (fv/html-face {:plugins (fpl/read-plugins)})
+  (-> (fv/html-face)
       (rur/response)
       (rur/content-type "text/html; charset=UTF-8")
       (rur/status 200)))
 
 (defn =search [{{tp :type} :params cfg :cfg q :query-string}]
-  (-> (fp/call* :search.fhir_search (cfg-str cfg) tp (or q ""))
+  (-> (fp/call* :fhir.search (cfg-str cfg) tp (or q ""))
       ff/parse
       rur/response))
 
-(defn =tags-all [{cfg :cfg}]
-  (-> (fp/call* :fhir_tags (cfg-str cfg))
-      rur/response))
-
-(defn =resource-type-tags [{{rt :type} :params cfg :cfg}]
-  (-> (fp/call* :fhir_tags (cfg-str cfg) rt)
-      rur/response))
-
-(defn =resource-tags [{{rt :type id :id} :params cfg :cfg}]
-  (-> (fp/call* :fhir_tags (cfg-str cfg) rt id)
-      rur/response))
-
-(defn =resource-version-tags [{{rt :type id :id vid :vid} :params cfg :cfg}]
-  (-> (fp/call* :fhir_tags (cfg-str cfg) rt id vid)
-      rur/response))
-
-(defn =affix-resource-tags [{{tp :type id :id} :params tags :tags cfg :cfg}]
-  (fp/call* :fhir_affix_tags (cfg-str cfg) tp id (json/write-str tags)   )
-  (-> (fp/call* :fhir_tags (cfg-str cfg) tp id)
-      rur/response))
-
-(defn =affix-resource-version-tags [{{tp :type id :id vid :vid} :params tags :tags cfg :cfg}]
-  (fp/call* :fhir_affix_tags (cfg-str cfg) tp id vid (json/write-str tags)   )
-  (-> (fp/call* :fhir_tags (cfg-str cfg) tp id vid)
-      rur/response))
-
-(defn =remove-resource-tags [{{tp :type id :id} :params cfg :cfg}]
-  (-> (fp/call* :fhir_remove_tags (cfg-str cfg) tp id)
-      (str " tags was removed")
-      rur/response))
-
-(defn =remove-resource-version-tags [{{tp :type id :id vid :vid} :params cfg :cfg}]
-  (-> (fp/call* :crud.remove_tags (cfg-str cfg) tp id vid)
-      (str " tags was removed")
-      rur/response))
-
 (defn =history [{{tp :type id :id} :params cfg :cfg}]
-  (-> (fp/call* :crud.history (cfg-str cfg) tp id)
+  (-> (fp/call* :fhir.history (cfg-str cfg) tp id)
       ff/parse
       rur/response))
 
 (defn =history-type [{{tp :type} :params cfg :cfg}]
-  (-> (fp/call* :crud.history (cfg-str cfg) tp)
+  (-> (fp/call* :fhir.history (cfg-str cfg) tp)
       ff/parse
       rur/response))
 
 (defn =history-all [{cfg :cfg}]
-  (-> (fp/call* :crud.history (cfg-str cfg))
+  (-> (fp/call* :fhir.history (cfg-str cfg))
       ff/parse
       rur/response))
-
-;(rur/header "Category" (fc/encode-tags tags))
 
 (defn resource-resp [res]
   (let [res (ff/parse res)]
@@ -219,17 +167,15 @@
         (rur/header "Last-Modified" (get-in res [:meta :lastUpdated])))))
 
 (defn =create
-  [{{rt :type} :params res :data tags :tags cfg :cfg :as req}]
+  [{{rt :type} :params res :data cfg :cfg :as req}]
   {:pre [(not (nil? res))]}
   (println "=create " (keys req))
   (let [json (ff/generate :json res)
-        jtags (json/write-str tags)
         resource-type (:resourceType res)]
     (if (= rt resource-type)
       (-> (fp/call* :crud.create (cfg-str cfg) json)
           (resource-resp)
-          (rur/status 201)
-          (rur/header "Category" (fc/encode-tags tags)))
+          (rur/status 201))
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
 
 (defn =update
@@ -253,7 +199,7 @@
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
 
 (defn =validate-create
-  [{{rt :type} :params res :data tags :tags cfg :cfg}]
+  [{{rt :type} :params res :data cfg :cfg}]
   #_{:pre [(not (nil? res))]}
   (validate-resource-type cfg rt res))
 
@@ -312,3 +258,7 @@
           (rur/response))
       {:status 500
        :body (pr-str res)})))
+(comment
+  (print cfg)
+  (fp/call* :fhir.fhir_search (cfg-str {}) "Patient" "")
+  )

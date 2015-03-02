@@ -4,7 +4,6 @@
     [clojure.set :as cs]
     [fhirplace.app :as fa]
     [fhirplace.core :as fc]
-    [fhirplace.category :as fct]
     [fhirplace.routes :as fr]
     ))
 
@@ -30,22 +29,17 @@
   (match? :GET  "/" #'fa/=html-face)
   (match? :POST "/" #'fa/=transaction)
   (match? :GET  "/metadata" #'fa/=metadata)
-  (match? :GET  "/Profile/Patient" #'fa/=profile)
+  (match? :GET  "/Profile/Patient" #'fa/=read)
   (match? :GET  "/Patient" #'fa/=search)
   (match? :GET  "/Patient/_search" #'fa/=search)
   (match? :POST "/Patient" #'fa/=create)
-  (match? :GET  "/Patient/_tags" #'fa/=resource-type-tags)
-  (match? :GET  "/Patient/_history" #'fa/=history-type)
-
-  (match? :GET  "/Patient/1/_tags" #'fa/=resource-tags))
+  (match? :GET  "/Patient/_history" #'fa/=history-type))
 
 (deftest middle-wares-test
   (mws? :GET  "/" #'fa/<-outcome-on-exception)
   (mws? :POST "/" #'fa/<-outcome-on-exception)
-  (mws? :GET "/_tags" #'fa/<-outcome-on-exception)
   (mws? :PUT "/Patient/5"
         #'fa/->parse-body!
-        #'fct/->parse-tags!
         #'fa/->valid-input!
         #'fa/->latest-version!
         #'fa/<-outcome-on-exception))

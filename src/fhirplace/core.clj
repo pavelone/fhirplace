@@ -75,4 +75,5 @@
 (defn stop-server [server] (.stop server))
 
 (comment
+  (stop-server srv)
   (def srv (start-server)))

@@ -17,6 +17,13 @@
    :stringtype "unspecified"
    :password (or (env/env :fhirplace-password) "fhirbase")})
 
+(def ^:dynamic *db*
+  {:subprotocol "postgresql"
+   :subname "//localhost:5777/test"
+   :user "fhirbase"
+   :stringtype "unspecified"
+   :password "fhirbase"})
+
 (println (str  "Database: " *db*))
 
 (defmacro with-db  [db & body]
@@ -48,6 +55,7 @@
 (defn q* [sql]
   (println "SQL:" (pr-str sql))
   (time (cjj/query *db* sql)))
+
 
 (defn call* [proc & args]
   (let [proc-name (name proc)

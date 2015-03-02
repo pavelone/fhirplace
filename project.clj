@@ -35,6 +35,7 @@
   :profiles {:dev {:source-paths ["dev"]
                    :dependencies [[org.clojure/tools.namespace "0.2.4"]
                                   [midje "1.6.0"]
+                                  [prismatic/plumbing "0.3.7"]
                                   [leiningen "2.3.4"]
                                   [org.clojure/java.classpath "0.2.0"]]
                    :plugins [[lein-kibit "0.0.8"]] }}
