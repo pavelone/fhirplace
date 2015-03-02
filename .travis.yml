@@ -8,8 +8,8 @@ script: lein2 do clean, javac, test
 before_script:
   - psql -U postgres -c "create user fhirbase with password 'fhirbase' superuser;"
   - psql -c 'create database fhirbase owner fhirbase;' -U postgres
-  - psql -d fhirbase -U postgres -c 'select fhir.generate_tables();'
   - curl https://raw.githubusercontent.com/fhirbase/fhirbase-build/master/fhirbase.sql | psql -d fhirbase -U postgres
+  - psql -d fhirbase -U postgres -c 'select fhir.generate_tables();'
 
 jdk:
   - oraclejdk7
