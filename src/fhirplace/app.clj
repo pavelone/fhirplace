@@ -86,7 +86,7 @@
 
 (defmw ->resource-exists! h
   [{{tp :type id :id } :params cfg :cfg :as req}]
-  (if (fp/call* :crud.is_exists (cfg-str cfg) tp id)
+  (if (fp/call* :fhir.is_exists tp id)
     (h req)
     (outcome :resource-not-exists
              (str "Resource with id: " id " not exists"))))
@@ -117,14 +117,14 @@
 
 (defmw ->check-deleted! h
   [{{tp :type id :id} :params cfg :cfg :as req}]
-  (if (fp/call* :crud.is_deleted (cfg-str cfg) tp id)
+  (if (fp/call* :fhir.is_deleted tp id)
     (outcome :resource-deleted (str "Resource " tp " with " id " was deleted"))
     (h req)))
 
 ;; TODO: fixme
 (defn- check-latest-version [cfg id tp vid]
   (println "check-latest " tp " " id " " vid)
-  (fp/call* :crud.is_latest (cfg-str cfg) tp id vid)    )
+  (fp/call* :fhir.is_latest tp id vid)    )
 
 (defmw ->latest-version! h
   [{{tp :type id :id} :params res :data cfg :cfg :as req}]
@@ -150,22 +150,22 @@
       (rur/status 200)))
 
 (defn =search [{{tp :type} :params cfg :cfg q :query-string}]
-  (-> (fp/call* :fhir.search (cfg-str cfg) tp (or q ""))
+  (-> (fp/call* :fhir.search tp (or q ""))
       ff/parse
       rur/response))
 
 (defn =history [{{tp :type id :id} :params cfg :cfg}]
-  (-> (fp/call* :fhir.history (cfg-str cfg) tp id)
+  (-> (fp/call* :fhir.history tp id)
       ff/parse
       rur/response))
 
 (defn =history-type [{{tp :type} :params cfg :cfg}]
-  (-> (fp/call* :fhir.history (cfg-str cfg) tp)
+  (-> (fp/call* :fhir.history tp)
       ff/parse
       rur/response))
 
 (defn =history-all [{cfg :cfg}]
-  (-> (fp/call* :fhir.history (cfg-str cfg))
+  (-> (fp/call* :fhir.history)
       ff/parse
       rur/response))
 
@@ -183,7 +183,7 @@
   (let [json (ff/generate :json res)
         resource-type (:resourceType res)]
     (if (= rt resource-type)
-      (-> (fp/call* :fhir.create (cfg-str cfg) json)
+      (-> (fp/call* :fhir.create json)
           (resource-resp)
           (rur/status 201))
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
@@ -195,7 +195,7 @@
         resource-type (:resourceType res)]
     (if (= rt resource-type)
       (let [cl (get-in req [:headers "content-location"])
-            item (fp/call* :fhir.update (cfg-str cfg) json)]
+            item (fp/call* :fhir.update json)]
         (-> (resource-resp item)
             (rur/status 200)))
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
@@ -220,18 +220,18 @@
 
 (defn =delete
   [{{rt :type id :id} :params body :body cfg :cfg}]
-  (-> (fp/call* :fhir.delete (cfg-str cfg) rt id)
+  (-> (fp/call* :fhir.delete rt id)
       (str)
       (rur/response)
       (rur/status 204)))
 
 (defn =read [{{rt :type id :id} :params cfg :cfg}]
-  (-> (fp/call* :fhir.read (cfg-str cfg) id)
+  (-> (fp/call* :fhir.read rt id)
       (resource-resp)
       (rur/status 200)))
 
 (defn =vread [{{rt :type id :id vid :vid} :params cfg :cfg}]
-  (-> (fp/call* :fhir.vread (cfg-str cfg) id)
+  (-> (fp/call* :fhir.vread rt id)
       (resource-resp)
       (rur/status 200)))
 
@@ -239,7 +239,7 @@
   [{bd :body cfg :cfg :as req}]
   (let [bundle (ff/parse (slurp bd))
         json (ff/generate :json bundle)]
-    (-> (fp/call* :fhir.transaction (cfg-str cfg) json)
+    (-> (fp/call* :fhir.transaction json)
         (ff/parse)
         (rur/response))))
 ;; api
@@ -270,4 +270,4 @@
        :body (pr-str res)})))
 (comment
   (print cfg)
-  (fp/call* :fhir.search (cfg-str {}) "Patient" ""))
+  (fp/call* :fhir.search "Patient" ""))
