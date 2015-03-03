@@ -21,7 +21,7 @@
 
 (deftest  test-search
   (def resp
-    (subj/=search {:cfg {} :params {:type "Profile"} :query-string "name=patient"}))
+    (subj/=search {:cfg {} :params {:type "StructureDefinition"} :query-string "name=patient"}))
 
   (is-ok? resp)
   (is-resource-type resp "Bundle"))

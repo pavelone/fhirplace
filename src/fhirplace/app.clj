@@ -183,7 +183,7 @@
   (let [json (ff/generate :json res)
         resource-type (:resourceType res)]
     (if (= rt resource-type)
-      (-> (fp/call* :crud.create (cfg-str cfg) json)
+      (-> (fp/call* :fhir.create (cfg-str cfg) json)
           (resource-resp)
           (rur/status 201))
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
@@ -195,7 +195,7 @@
         resource-type (:resourceType res)]
     (if (= rt resource-type)
       (let [cl (get-in req [:headers "content-location"])
-            item (fp/call* :crud.update (cfg-str cfg) json)]
+            item (fp/call* :fhir.update (cfg-str cfg) json)]
         (-> (resource-resp item)
             (rur/status 200)))
       (throw (Exception. (str "Wrong resource type '" resource-type "' for '" rt "' endpoint"))))))
@@ -220,18 +220,18 @@
 
 (defn =delete
   [{{rt :type id :id} :params body :body cfg :cfg}]
-  (-> (fp/call* :crud.delete (cfg-str cfg) rt id)
+  (-> (fp/call* :fhir.delete (cfg-str cfg) rt id)
       (str)
       (rur/response)
       (rur/status 204)))
 
 (defn =read [{{rt :type id :id} :params cfg :cfg}]
-  (-> (fp/call* :crud.read (cfg-str cfg) id)
+  (-> (fp/call* :fhir.read (cfg-str cfg) id)
       (resource-resp)
       (rur/status 200)))
 
 (defn =vread [{{rt :type id :id vid :vid} :params cfg :cfg}]
-  (-> (fp/call* :crud.vread (cfg-str cfg) id)
+  (-> (fp/call* :fhir.vread (cfg-str cfg) id)
       (resource-resp)
       (rur/status 200)))
 
@@ -239,7 +239,7 @@
   [{bd :body cfg :cfg :as req}]
   (let [bundle (ff/parse (slurp bd))
         json (ff/generate :json bundle)]
-    (-> (fp/call* :transaction.transaction (cfg-str cfg) json)
+    (-> (fp/call* :fhir.transaction (cfg-str cfg) json)
         (ff/parse)
         (rur/response))))
 ;; api

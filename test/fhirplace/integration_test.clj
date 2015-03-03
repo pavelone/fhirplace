@@ -52,7 +52,7 @@
   {:metadata (fnk [] (GET (url "metadata")))
    :conformance (fnk [metadata] (ff/parse (:body metadata)))
 
-   :pt_profile (fnk [] (GET (url "Profile" "Patient")))
+   :pt_profile (fnk [] (GET (url "StructureDefinition" "Patient")))
 
    :search (fnk [] (GET (url "Patient" "_search")))
    :search_atom (fnk [search] (ff/parse (:body search)))
@@ -99,7 +99,7 @@
     (is-type? "Conformance" (:conformance subj))
 
     (status? 200 (:pt_profile subj))
-    (is-type? "Profile"
+    (is-type? "StructureDefinition"
               (ff/parse (:body (:pt_profile subj))))
 
     (status? 200 (:search subj))
