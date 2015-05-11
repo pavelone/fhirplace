@@ -192,11 +192,6 @@ some queries to test if it's actually works. Please, refer to
 [PostgreSQL](http://www.postgresql.org/docs/) Documentation for
 further reading.
 
-## Service
-
-> All premium services from developers of FHIRbase projects
-> should be requested from Choice Hospital Systems (http://Choice-HS.com)
-
 ## License
 
 Copyright © 2014 Health Samurai Team.
